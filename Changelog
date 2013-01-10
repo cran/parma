@@ -1,0 +1,26 @@
+2013-01-10  Alexios Ghalanos <alexios@4dscape.com>
+	* DESCRIPTION (Version): version is 1.03.
+	* Streamlining/re-write of all methods and functions.
+	* Addition of frontier function.
+	* Removal of scenario generation functions and rmgarch dependence (moved
+	to rmgarch).
+	* Fixes to some NLP functions.
+	* Numerous tests, examples added to inst folder.
+	* Release to CRAN.
+	
+2012-06-20  Alexios Ghalanos <alexios@4dscape.com>
+	* DESCRIPTION (Version): version is 1.02.
+	* Removed global solvers which had poor performance.
+	* Created and exported a direct translation into R of the cmaes 
+	solver of Hansen from his matlab version 3.6 code with many options.
+	* Some cleanup in the GNLP problems and more tests added in inst folder.
+
+2012-06-15  Alexios Ghalanos <alexios@4dscape.com>
+	* DESCRIPTION (Version): version is 1.01.
+	* Added parmaset<- and parmaget access methods on the parmaSpec object.
+	* Renamed old parmaget function for loading previously saved scenario or 
+	moments from file to parmaload.
+	* Added GNLP solvers for cardinality constraints in NLP and for the
+	LPMUPM problem formulation.
+	* Added MILP for the minrisk LP problems with cardinality constraints.
+	

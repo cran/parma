@@ -1,0 +1,7 @@
+importFrom(stats, weights)
+exportClasses("parmaSpec", "parmaPort")
+export("parmaspec", "parmasolve", "parmafrontier","parmautility")
+exportMethods("checkarbitrage", "tictoc", "weights", "show")
+exportMethods("parmaset<-", "parmaget", "parmastatus")
+exportMethods("parmarisk", "parmareward")
+export("Daily2Weekly", "Daily2Monthly", "cmaes", "cmaes.control", "riskfun")
