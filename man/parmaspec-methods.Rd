@@ -9,11 +9,11 @@ Defines the type model and method for optimization using either a scenario or
 covariance matrix.
 }
 \usage{
-parmaspec(scenario = NULL, probability = NULL, S = NULL, benchmark = NULL, 
-		benchmarkS = NULL, forecast = NULL, target = NULL, 
+parmaspec(scenario = NULL, probability = NULL, S = NULL, Q = NULL, qB = NULL, 
+		benchmark = NULL, benchmarkS = NULL, forecast = NULL, target = NULL, 
 		targetType =  c("inequality", "equality"), 
 		risk = c("MAD", "MiniMax", "CVaR", "CDaR", "EV", "LPM", "LPMUPM"), 
-		riskType = c("minrisk", "optimal"), 
+		riskType = c("minrisk", "optimal", "maxreward"), riskB = NULL,
 		options = list(alpha = 0.05, threshold = 999, moment = 1, lmoment=1,
 		umoment=1, lthreshold = -0.01, uthreshold = 0.01), 
 		LB = NULL, UB = NULL, budget = 1, leverage = NULL, 
@@ -28,6 +28,8 @@ parmaspec(scenario = NULL, probability = NULL, S = NULL, benchmark = NULL,
 must sum to 1 (only currently used in LP problems). Default is to assign equal 
 weights to each row of the scenario.}
 \item{S}{ An m-by-m positive definite covariance matrix.}
+\item{Q}{ A list of m-by-m positive definite matrices for QCQP type problems.}
+\item{qB}{ a vector of the same length as Q denoting the upper bound on Q.}
 \item{benchmark}{ A n-by-1 scenario benchmark matrix, used when scenario is not 
 NULL.}
 \item{benchmarkS}{ An m+1 vector consisting of the benchmark variance (1) and 
@@ -40,8 +42,12 @@ forecasts above).}
 \item{targetType}{ Whether the target should be a hard equality or inequality.}
 \item{risk}{ The risk measure.}
 \item{riskType}{ The type of optimization to use, with a choice of minimizing the
-risk given the relevant constraints, else on optimizing directly the risk to 
-reward ratio using established fractional programming methods.}
+risk given the relevant constraints, on optimizing directly the risk to 
+reward ratio using established fractional programming methods or maximizing the
+reward subject to a risk upper bound and other constraints (only currently supported
+by the SOCP solver for covariance matrix type problems).}
+\item{riskB}{For the case that riskType is \dQuote{maxreward}, then riskB is the
+upper bound for the risk constraint.}
 \item{options}{ A vector of optional parameters related to the tail risk measures
 CVaR, CDaR and LPM.}
 \item{LB}{ The lower bounds for the asset weights. If using a benchmark, this
@@ -86,7 +92,7 @@ of risk subject to a target return, else on the optimal risk-reward ratio using
 fractional programming (see references), thus avoiding the estimation of the 
 entire frontier. Problems are classified and solved according to whether they
 can be formulated as Linear (LP), Mixed Integer LP (MILP), Quadratic (QP), 
-Mixed Integer Quadratic (MIQP), Quadratically Constrained QP (QCQP), 
+Mixed Integer Quadratic (MIQP), Second Order Cone Programming (SOCP), 
 Non-Linear (NLP), Mixed Integer NLP (MINLP) and Global NLP (GNLP). This in turn
 depends on the intersection of objectives and constraints. It is possible that a
 problem may be solved both as an LP and NLP (or QP and NLP), and this can be 
@@ -97,7 +103,7 @@ choice of formulation (with some LP models being particularly expensive). Not
 all problem types are supported, but this might change subject to the availability 
 of solvers in R which can deal with these specific types e.g. MINLP and MIQP. 
 The parmaspec also allows the input of a benchmark so that benchmark relative 
-optimization is carried out. 
+optimization is carried out.
 User defined equality and inequality functions for NLP problems need to be 
 properly defined to be accepted by the model, and their analytic gradients
 also provided, unless the problem is solved as a GNLP in which case a derivative 

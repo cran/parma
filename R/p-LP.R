@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -587,8 +589,13 @@ lpcdar.optrisk = function(optvars)
 ################################################################################
 
 #risk: 1 (MAD), 2 (MiniMax), 3 (CVaR), 4 (CDaR), 5(EV), 6 (LPM), 7 (LPMUPM)
-lpport = function(optvars, ...)
+lpport = function(optvars, solver, ...)
 {
+	valid.solvers = c("glpk", "symphony")
+	solver = match.arg(tolower(solver), valid.solvers)
+	if(solver=="symphony"){
+		if(!require(Rsymphony)) stop("\nPackage 'Rsymphony' must be installed") 
+	}
 	risk = c("mad", "minimax", "cvar", "cdar", "ev", "lpm", "lpmupm")[optvars$index[4]]
 	if(optvars$index[5] == 1){
 		setup = switch(risk,
@@ -597,7 +604,7 @@ lpport = function(optvars, ...)
 				"cvar"    = lpcvar.minrisk(optvars),
 				"cdar"    = lpcdar.minrisk(optvars),
 				"lpm"     = lplpm1.minrisk(optvars))
-		sol = lpminsolver(setup, optvars, ...)
+		sol = lpminsolver(setup, solver, optvars, ...)
 	} else{
 		setup = switch(risk,
 				'mad'  = lpmad.optrisk(optvars),
@@ -605,22 +612,26 @@ lpport = function(optvars, ...)
 				'cvar' = lpcvar.optrisk(optvars),
 				'cdar' = lpcdar.optrisk(optvars),
 				'lpm' = lplpm1.optrisk(optvars))
-		sol = lpoptsolver(setup, optvars, ...)
+		sol = lpoptsolver(setup, solver, optvars, ...)
 	}
-	
 	#sol$risk = fun.risk(sol$weights, scenario, options, risk, benchmark)	
 	rm(setup)
 	gc()
 	return( sol )
 }
 
-lpminsolver = function(setup, optvars, ...)
+lpminsolver = function(setup, solver, optvars, ...)
 {
 	if( is.null(list(...)$verbose) ) verbose = FALSE else verbose = as.logical( list(...)$verbose )
 	m = setup$dataidx[2]
-	sol = try( Rglpk_solve_LP(obj = setup$objL, mat = setup$Amat, dir = setup$dir, 
-					rhs = setup$rhs, bounds = setup$bounds, max = setup$problem.max, 
-					verbose = verbose), silent = FALSE )
+	sol = switch(solver,
+			glpk = try( Rglpk_solve_LP(obj = setup$objL, mat = setup$Amat, dir = setup$dir, 
+							rhs = setup$rhs, bounds = setup$bounds, max = setup$problem.max, 
+							verbose = verbose), silent = FALSE ),
+			symphony =  try( Rsymphony::Rsymphony_solve_LP(obj = setup$objL, 
+							mat = setup$Amat, dir = setup$dir, rhs = setup$rhs, 
+							bounds = setup$bounds, max = setup$problem.max), 
+					silent = FALSE ))
 	if( inherits(sol, "try-error") ){
 		status = "non-convergence"
 		weights = rep(NA, m)
@@ -631,7 +642,9 @@ lpminsolver = function(setup, optvars, ...)
 	} else{
 		status  = sol$status
 		weights = sol$solution[setup$widx]
-		risk    = sol$optimum
+		# GLPK has a documentation bug, statting that it returns objval when it
+		# in fact returns "optimum".
+		risk    = switch(solver, glpk = sol$optimum, symphony = sol$objval)
 		if( !is.null(setup$reward) ){
 			reward = sum(optvars$mu * weights)
 		} else {
@@ -647,16 +660,20 @@ lpminsolver = function(setup, optvars, ...)
 					multiplier = 1, VaR = VaR, DaR = DaR) )
 }
 
-lpoptsolver = function(setup, optvars, ...)
+lpoptsolver = function(setup, solver, optvars, ...)
 {
 	if( is.null(list(...)$verbose) ) verbose = FALSE else verbose = as.logical( list(...)$verbose )
 	
 	m = setup$dataidx[2]
 	
-	sol = try(Rglpk_solve_LP(obj = setup$objL, mat = setup$Amat, dir = setup$dir, 
-					rhs = setup$rhs, bounds = setup$bounds, max = setup$problem.max, 
-					verbose = verbose), 
-			silent = FALSE )
+	sol = switch(solver,
+			glpk = try( Rglpk_solve_LP(obj = setup$objL, mat = setup$Amat, dir = setup$dir, 
+							rhs = setup$rhs, bounds = setup$bounds, max = setup$problem.max, 
+							verbose = verbose), silent = FALSE ),
+			symphony =  try( Rsymphony::Rsymphony_solve_LP(obj = setup$objL, 
+							mat = setup$Amat, dir = setup$dir, rhs = setup$rhs, 
+							bounds = setup$bounds, max = setup$problem.max), 
+					silent = FALSE ))
 	ans = list()
 	if( inherits(sol, "try-error") ){
 		status = "non-convergence"
@@ -674,7 +691,7 @@ lpoptsolver = function(setup, optvars, ...)
 		weights = tmp[setup$widx]
 		risk = sum(setup$objL * sol$solution)/multiplier
 		reward = sum(optvars$mu * weights)
-		optimum  = sol$optimum
+		optimum  = switch(solver, glpk = sol$optimum, symphony = sol$objval)
 		if(optvars$index[4]==3) VaR = sol$solution[setup$vidx]/multiplier else VaR = NA
 		if(optvars$index[4]==4) DaR = sol$solution[setup$vidx]/multiplier else DaR = NA
 	}

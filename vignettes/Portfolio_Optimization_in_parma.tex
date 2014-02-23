@@ -13,57 +13,23 @@
 \usepackage{subfig}
 \usepackage{hyperref}
 \usepackage{color}
-\usepackage{harvard}
-\usepackage{xkeyval}
-\usepackage{listings}
-\definecolor{sh_comment}{rgb}{0.12, 0.38, 0.18 } %adjusted, in Eclipse: {0.25, 0.42, 0.30 } = #3F6A4D
-\definecolor{sh_keyword}{rgb}{0.37, 0.08, 0.25}  % #5F1441
-\definecolor{sh_string}{rgb}{0.06, 0.10, 0.98} % #101AF9
-\definecolor{lightgrey}{rgb}{0.94,0.94,0.94}
-\lstset{ %
-  basicstyle=\footnotesize\ttfamily,           % the size of the fonts that are used for the code
-  numbers=left,                   % where to put the line-numbers
-  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
-  stepnumber=0,                   % the step between two line-numbers. If it's 1, each line
-  numbersep=5pt,                  % how far the line-numbers are from the code
-  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
-  showspaces=false,               % show spaces adding particular underscores
-  showstringspaces=false,         % underline spaces within strings
-  showtabs=false,                 % show tabs within strings adding particular underscores
-  frame=false,                   % adds a frame around the code
-  rulecolor=\color{lightgrey},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
-  tabsize=1,                      % sets default tabsize to 2 spaces
-  captionpos=b,                   % sets the caption-position to bottom
-  breaklines=true,                % sets automatic line breaking
-  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
-  title=\lstname,                   % show the filename of files included with \lstinputlisting;
-  keywordstyle=\color{sh_keyword},          % keyword style
-  commentstyle=\color{sh_comment},       % comment style
-  stringstyle=\color{sh_string},         % string literal style
-  morecomment=[l]{\#},
-  morestring=[b]",
-  morekeywords={show, round, weights, NULL, data, TRUE, FALSE, function, list, paste, args} % if you want to add more keywords to the set
-}
-%\marginsize{2cm}{2cm}{1cm}{1cm}
-%\setlength{\textwidth}{16cm}
-%\setlength{\oddsidemargin}{0cm}
-%\setlength{\textheight}{24cm}
-%\setlength{\headheight}{2cm}
+\usepackage{natbib}
 \newtheorem{proof}{Proof}
-\bibliographystyle{econometrica}
-%\usepackage{Sweave}
+\bibliographystyle{plainnat}
+\usepackage{Sweave}
 \usepackage{graphicx}
 \begin{document}
-\title{Portfolio Optimization in \textbf{parma}}
+\title{Portfolio Optimization in \textbf{parma}\\
+(Version 1.5-0)}
 \author{Alexios Ghalanos}
 \date{\today}
 \maketitle
 \begin{abstract}
-The \textbf{p}ortfolio \textbf{a}llocation and \textbf{r}isk \textbf{m}anagement 
-\textbf{a}pplications (\textbf{parma}) package provides a set of models and 
-methods for use in the allocation and management of capital in financial portfolios. 
-It uniquely represents certain discontinuous problems using their smooth approximation 
-counterparts and implements fractional based programming for the direct optimization 
+The \textbf{p}ortfolio \textbf{a}llocation and \textbf{r}isk \textbf{m}anagement
+\textbf{a}pplications (\textbf{parma}) package provides a set of models and
+methods for use in the allocation and management of capital in financial portfolios.
+It uniquely represents certain discontinuous problems using their smooth approximation
+counterparts and implements fractional based programming for the direct optimization
 of risk-to-reward ratios. This paper forms an introduction to the models and methods.
 \end{abstract}
 \clearpage

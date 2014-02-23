@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -303,73 +305,8 @@ parma.con.qpopt = function(eq, eqB, reward, ineq, ineqLB, ineqUB, LB, UB, budget
 	# Upper and Lower Bounds	
 	return( list(Amat = Amat, bvec = bvec, meq = meq) )
 }
-
-
-parma.con.socp = function(Sigma, riskB, reward, eq = NULL, eqB = NULL, ineq = NULL, ineqLB = NULL, ineqUB = NULL, 
-		budget = NULL, LB, UB, Scale = NULL)
-{
-	
-	if( is.null(Scale) ) Scale = 1.0e6 * 0.02 else Scale = 1.0e6 * Scale
-	
-	# Objective Function:
-	m = length(LB)
-	f = -reward/Scale
-	# Constraints:
-	# C - Cone Constraints:
-	C = NULL
-	d = NULL
-	A = NULL
-	b = NULL
-	N = NULL
-	# (Left Hand Side)
-	# Risk Constraint x C.x 
-	C = rbind(C, matrix(0, ncol = m) )
-	d = c( d, riskB/Scale )
-	# Add back this line once socp is released in the package
-	# A = rbind( A, Rsocp::.SqrtMatrix( Sigma/Scale^2 ) )
-	b = c( b, rep(0, m) )
-	N = c( N, m )
-	# (Right Hand Side)
-	# Eq Constraints eq.x = eqB
-	if( !is.null( eq ) ){
-		eqn = dim( eq )[1]
-		C = rbind( C, eq, -eq )
-		d = c( d, -eqB + 0.01*eqB, eqB +  0.01*eqB)
-		b = c( b, rep( 0, 2 * eqn ) )
-		A = rbind( A, matrix( 0, nrow = 2 * eqn, ncol = m ) )
-		N = c( N, rep(1, 2 * eqn) )
-		
-	}
-	# Budget Constraint x.e = budget
-	if( !is.null(budget) ){
-		C = rbind( C, matrix( 1, ncol = m ), matrix( -1, ncol = m ) )
-		d = c( d, - budget + 0.01 , budget + 0.01)
-		b = c(b, 0, 0 )
-		A = rbind( A, matrix( 0, nrow = 2, ncol = m ) )
-		N = c( N, 1, 1 )
-	}
-	# Ineq Constraints ineq.x >= ineqLB, -ineq.x >= -ineqUB
-	if( !is.null(ineq) ){
-		ineqn = dim(ineq)[1]
-		C = rbind(C, ineq, -ineq )
-		d = c(d, -ineqLB, ineqUB)
-		b = c(b, rep( 0, 2 * ineqn ) )
-		A = rbind( A, matrix(0, nrow = 2 * ineqn, ncol = m) )
-		N = c(N, rep(1, 2 * ineqn) )
-	}
-	# Parameter Bounds x >= LB, -x >= -UB
-	C = rbind( C, diag(m), -diag(m) )
-	d = c(d, -LB, UB)
-	b = c(b, rep( 0, 2 * m ) )
-	A = rbind( A, matrix(0, nrow = 2 * m, ncol = m) )
-	N = c(N, rep(1, 2 * m) )
-	
-	return( list( f = f, A = A, C = C, d = d, b = b, A = A, N = N, Scale = Scale ) )
-}
-
-
 ###############################################################################
-# General Constraint Functions
+# General NLP Constraint Functions
 ###############################################################################
 parma.ineq.minfun = function(w, optvars, uservars){
 	cons = NULL
@@ -428,7 +365,7 @@ parma.eq.mingrad = function(w, optvars, uservars){
 	if(!is.null(optvars$eqgrad)){
 		n = length(optvars$eqgrad)
 		if(optvars$index[6]==0) cons = eqjac.budget.min(w, optvars, uservars) else cons = eqjac.leverage.min(w, optvars, uservars)
-		if(optvars$index[3]==2) cons = c(cons, eqjac.target.min(w, optvars, uservars))
+		if(optvars$index[3]==2) cons = rbind(cons, eqjac.target.min(w, optvars, uservars))
 		fnlist = list(w, optvars, uservars)
 		names(fnlist) = c("w", "optvars", "uservars")
 		for(i in 1:n){

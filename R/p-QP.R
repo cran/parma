@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -42,6 +44,10 @@
 		Saux[2:(m+1),2:(m+1)] = S
 		Saux[1,] = sbench
 		Saux[2:(m+1),1] = sbench[-1]
+		if(any(eigen(Saux, TRUE, only.values=TRUE)$values<1e-10)){
+			warning("\nparma: benchmark relative covariance matrix not PD...adjusting to make PD")
+			Saux <- make.positive.definite(Saux, 1e-10)
+		}
 		forecast = matrix(forecast, ncol = m, nrow = 1)
 		if(index[3] == 1){
 			# inequality target
@@ -105,6 +111,10 @@
 	Saux[2:(m+1),2:(m+1)] = S
 	Saux[1,] = sbench
 	Saux[2:(m+1),1] = sbench[-1]
+	if(any(eigen(Saux, TRUE, only.values=TRUE)$values<1e-10)){
+		warning("\nparma: benchmark relative covariance matrix not PD...adjusting to make PD")
+		Saux <- make.positive.definite(Saux, 1e-10)
+	}
 	# this guarantees PD of matrix when no benchmark is used:
 	if(optvars$index[2]==0) Saux[1,1] = 1e-12
 	# special constraints for optimal QP:
@@ -123,18 +133,12 @@
 
 # 2 solvers: QP for standard optimization and SOCP for quadratic tail constraints
 qpport = function(optvars, ...){
-	if(!is.null(optvars$SS)){
-		stop("\nparma: Quadratic constraints not yet implemented")
-		#setup = .socp.min(optvars)
-		#ans = socp.solver(setup, ...)
+	if(optvars$index[5]==1){
+		setup = .qp.min(optvars)
+		ans = qpmin.solver(setup, optvars, ...)
 	} else{
-		if(optvars$index[5]==1){
-			setup = .qp.min(optvars)
-			ans = qpmin.solver(setup, optvars, ...)
-		} else{
-			setup = .qp.opt(optvars)
-			ans = try(qpopt.solver(setup, optvars, ...), silent = TRUE)			
-		}
+		setup = .qp.opt(optvars)
+		ans = try(qpopt.solver(setup, optvars, ...), silent = TRUE)			
 	}
 	sol = list()
 	sol$weights = ans$weights
@@ -151,6 +155,7 @@ qpmin.solver = function(setup, optvars, ...){
 	sol = try(solve.QP(Dmat = setup$Dmat, dvec = setup$dvec, Amat = t(setup$Amat),
 					bvec = setup$bvec, meq = setup$meq), silent = TRUE)
 	if(inherits(sol, "try-error")){
+		warning(sol)
 		status = "non-convergence"
 		weights = rep(NA, setup$m)
 		risk = NA
@@ -172,6 +177,7 @@ qpopt.solver = function(setup, optvars, ...){
 	sol = try(solve.QP(Dmat = setup$Dmat, dvec = setup$dvec, Amat = t(setup$Amat),
 					bvec = setup$bvec, meq = setup$meq), silent = TRUE)
 	if(inherits(sol, "try-error")){
+		warning(sol)
 		status = "non-convergence"
 		weights = rep(NA, setup$m)
 		risk = NA

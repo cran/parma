@@ -3,7 +3,7 @@
 \alias{etfdata}
 \title{15 Exchange Traded Funds (ETFs)}
 \description{
-The timeSeries dataset consists of the adjusted daily closing prices of 15 
+The xts dataset consists of the adjusted daily closing prices of 15 
 iShare ETFs for the period 2003-05-28 to 2012-06-01 (2272 periods) representing 
 a selection of US style and international equity benchmark. The iShare 
 series are IWF (Russell 1000 Growth Index), IWD (Russell 1000 Value Index),
@@ -14,6 +14,6 @@ EWG (MSCI Germany Index), EWL (MSCI Switzerland Index), EWQ (MSCI France Index),
 EWU (MSCI UK Index), EPP (MSCI Pacific ex-Japan), EZA (MSCI South Africa Index).
 }
 \usage{data(etfdata)}
-\format{A timeSeries matrix containing 2272x15 observations.}
+\format{An xts matrix containing 2272x15 observations.}
 \source{Yahoo Finance}
 \keyword{datasets}

@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -23,11 +25,11 @@ parmautility = function(U = c("CARA", "Power"), method = c("moment", "scenario")
 
 setMethod("parmautility", definition = .parmautility)
 
-parmaspec = function(scenario = NULL, probability = NULL, S = NULL, benchmark = NULL, 
-		benchmarkS = NULL, forecast = NULL, target = NULL, 
+parmaspec = function(scenario = NULL, probability = NULL, S = NULL, Q = NULL, qB = NULL,
+		benchmark = NULL, benchmarkS = NULL, forecast = NULL, target = NULL, 
 		targetType =  c("inequality", "equality"), 
 		risk = c("MAD", "MiniMax", "CVaR", "CDaR", "EV", "LPM", "LPMUPM"), 
-		riskType = c("minrisk", "optimal"), 
+		riskType = c("minrisk", "optimal", "maxreward"), riskB = NULL,
 		options = list(alpha = 0.05, threshold = 999, moment = 1, 
 				lmoment = 1, umoment = 1, lthreshold = -0.01, uthreshold = 0.01), 		
 		LB = NULL, UB = NULL, budget = 1, leverage = NULL, 
@@ -44,7 +46,7 @@ setMethod("parmaspec", definition = .parmaspec)
 
 parmasolve = function(spec, type = NULL, solver = NULL, solver.control = list(), 
 		x0 = NULL, w0 = NULL, parma.control = list(ubounds = 1e4, 
-				mbounds = 1e5, penalty = 1e4), ...)
+				mbounds = 1e5, penalty = 1e4, eqSlack = 1e-5), ...)
 {
 	UseMethod("parmasolve")
 }
@@ -150,10 +152,10 @@ setMethod("show",
 			cat(paste("\n|       PARMA Specification       |", sep = ""))
 			cat(paste("\n+---------------------------------+ ", sep = ""))
 			cat(paste("\nNo.Assets\t\t: ", object@model$indx[8], sep = ""))
-			tmp = c("LP", "MILP", "QP", "MIQP", "QCQP", "NLP", "MINLP", "GNLP")[which(object@model$type==1)]
+			tmp = c("LP", "MILP", "QP", "MIQP", "SOCP", "NLP", "MINLP", "GNLP")[which(object@model$type==1)]
 			cat("\nProblem\t\t\t:", paste(tmp, sep=" ", collapse = ","))
 			cat(paste("\nInput\t\t\t: ", if(object@model$indx[1]==1) "Scenario" else "Covariance", sep = ""))
-			cat(paste("\nRisk Measure\t\t: ", object@model$risk, sep = ""))
+			cat(paste("\nRisk Measure\t: ", object@model$risk, sep = ""))
 			cat(paste("\nObjective\t\t: ", object@model$riskType, sep = ""))
 			cat("\n\n")
 			invisible(object)
@@ -188,7 +190,7 @@ setMethod("show",
 				cat(paste("\n+---------------------------------+ ", sep = ""))
 				cat(paste("\nNo.Assets\t\t: ", object@model$indx[8], sep = ""))
 				cat(paste("\nProblem\t\t\t: ", object@model$type, sep = ""))
-				cat(paste("\nRisk Measure\t\t: ", object@model$risk, sep = ""))
+				cat(paste("\nRisk Measure\t: ", object@model$risk, sep = ""))
 				cat(paste("\nObjective\t\t: ", object@model$riskType, sep = ""))
 				cat(paste("\nRisk\t\t\t: ", round(object@solution$risk,7), sep = ""))
 				cat(paste("\nReward\t\t\t: ", round(object@solution$reward,7), sep = ""))

@@ -1,20 +1,31 @@
 #################################################################################
 ##
-##   R package pom by Alexios Ghalanos Copyright (C) 2012
-##   This file is part of the R package pom.
-##	 Unless explicit and written permission granted by the copyright holder, 
-##	 no use, copy or modification of any part of this software allowed.
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
+##   This file is part of the R package parma.
+##
+##   The R package parma is free software: you can redistribute it and/or modify
+##   it under the terms of the GNU General Public License as published by
+##   the Free Software Foundation, either version 3 of the License, or
+##   (at your option) any later version.
+##
+##   The R package parma is distributed in the hope that it will be useful,
+##   but WITHOUT ANY WARRANTY; without even the implied warranty of
+##   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##   GNU General Public License for more details.
 ##
 #################################################################################
-
 
 # Risk Functions
 parma.test1 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
-	Data = as.matrix(Data)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	set.seed(20)
 	w = rexp(15, 2)
 	w = w/sum(w)
@@ -145,8 +156,11 @@ parma.test1 = function()
 parma.test2 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	
 	pspec1 = parmaspec(scenario = Data, forecast = colMeans(Data), 
 			risk = c("MAD", "MiniMax", "CVaR", "CDaR", "EV", "LPM")[1], 
@@ -351,8 +365,11 @@ parma.test2 = function()
 parma.test3 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	
 	pspec1 = parmaspec(scenario = Data, forecast = colMeans(Data), 
 			risk = c("MAD", "MiniMax", "CVaR", "CDaR", "EV", "LPM")[1], 
@@ -360,7 +377,7 @@ parma.test3 = function()
 			riskType = c("minrisk", "optimal")[2], 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
 	
-	sol1lpopt = parmasolve(pspec1, type = "LP")
+	sol1lpopt = parmasolve(pspec1, type = "LP", solver="GLPK")
 	sol1nlpopt = parmasolve(pspec1, type = "NLP")
 	
 	d1 = cbind(weights(sol1lpopt), weights(sol1nlpopt))
@@ -387,7 +404,7 @@ parma.test3 = function()
 			riskType = c("minrisk", "optimal")[2], 
 			LB = rep(0, 15), UB = rep(0.5, 15), budget = 1)
 	
-	sol2lpopt = parmasolve(pspec2, type = "LP")
+	sol2lpopt = parmasolve(pspec2, type = "LP", solver="GLPK")
 	sol2nlpopt = parmasolve(pspec2, type = "NLP")
 	
 	d2 = cbind(weights(sol2lpopt), weights(sol2nlpopt))
@@ -412,7 +429,7 @@ parma.test3 = function()
 			options = list(alpha = 0.05), 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
 	
-	sol3lpopt = parmasolve(pspec3, type = "LP")
+	sol3lpopt = parmasolve(pspec3, type = "LP", solver="GLPK")
 	sol3nlpopt = parmasolve(pspec3, type = "NLP")
 	
 	d3 = cbind(weights(sol3lpopt), weights(sol3nlpopt))
@@ -439,7 +456,7 @@ parma.test3 = function()
 			options = list(alpha = 0.05), 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
 	
-	sol4lpopt = parmasolve(pspec4, type = "LP")
+	sol4lpopt = parmasolve(pspec4, type = "LP", solver="GLPK")
 	
 	d4 = cbind(weights(sol4lpopt))
 	d4 = rbind(d4, unname(cbind(parmarisk(sol4lpopt))))
@@ -496,7 +513,7 @@ parma.test3 = function()
 			options = list(threshold = 999, moment=1), 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
 	
-	sol6lpopt = parmasolve(pspec6, type = "LP")
+	sol6lpopt = parmasolve(pspec6, type = "LP", solver="GLPK")
 	sol6nlpopt = parmasolve(pspec6, type = "NLP")
 	
 	d6 = cbind(weights(sol6lpopt), weights(sol6nlpopt))
@@ -522,7 +539,7 @@ parma.test3 = function()
 			options = list(threshold = 999, moment=2), 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
 	
-	sol7nlpopt = parmasolve(pspec6, type = "NLP")
+	sol7nlpopt = parmasolve(pspec7, type = "NLP")
 	
 	pspec7x = parmaspec(scenario = Data, forecast = colMeans(Data), 
 			risk = c("MAD", "MiniMax", "CVaR", "CDaR", "EV", "LPM")[6], 
@@ -593,8 +610,11 @@ parma.test3 = function()
 parma.test4 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 
 	spec1 = parmaspec(scenario = Data, forecast = colMeans(Data), 
 			risk ="LPM", riskType = "optimal", 
@@ -663,8 +683,11 @@ parma.test4 = function()
 parma.test5 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	
 	set.seed(12)
 	wb = rexp(10, 2)
@@ -808,8 +831,11 @@ parma.test5 = function()
 parma.test6 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	
 	set.seed(12)
 	wb = rexp(10, 2)
@@ -945,9 +971,11 @@ parma.test6 = function()
 parma.test6 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
-	Data = as.matrix(Data)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	m = 15
 	
 	# Constraint 1:
@@ -978,9 +1006,9 @@ parma.test6 = function()
 			LB = rep(0, 14), UB = rep(0.2, 14), budget = 1, 
 			ineq.mat = sectmatrix, ineq.LB = c(0,0,0), ineq.UB = c(0.4, 0.4, 0.4))
 	
-	sol1lp = parmasolve(pspec1, type = "LP")
+	sol1lp = parmasolve(pspec1, type = "LP", solver="GLPK")
 	# spec 2 is LP because of the ineq.mat LP matrices
-	sol2lp = parmasolve(pspec2)
+	sol2lp = parmasolve(pspec2, type = "LP", solver="GLPK")
 	
 	
 	###############################################
@@ -1080,8 +1108,11 @@ parma.test6 = function()
 parma.test7 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	
 	m = 15
 	
@@ -1262,8 +1293,11 @@ parma.test7 = function()
 parma.test9 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	Data = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)
+	
 	f = colMeans(Data)
 	pspec1 = parmaspec(scenario = Data, target = 0, 
 			targetType = "equality", forecast = f, 
@@ -1271,7 +1305,7 @@ parma.test9 = function()
 			riskType = c("minrisk", "optimal")[1], 
 			options = list(alpha = 0.05), 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
-	flp = parmafrontier(pspec1, n.points = 100, type = "LP")
+	flp = parmafrontier(pspec1, n.points = 100, type = "LP", solver="GLPK")
 	r1 = flp[,"CVaR"]
 	rw1 = flp[,"reward"]
 	opt = which(r1/rw1 == min(r1/rw1))
@@ -1285,7 +1319,7 @@ parma.test9 = function()
 			riskType = c("minrisk", "optimal")[2], 
 			options = list(alpha = 0.05), 
 			LB = rep(0, 15), UB = rep(1, 15), budget = 1)
-	optlp = parmasolve(pspec2, type="LP")
+	optlp = parmasolve(pspec2, type="LP", solver="GLPK")
 	
 	postscript("parma_test9-1.eps", width = 12, height = 8)
 	plot(r1, rw1, type = "p", col = "steelblue", xlab = "E[Risk]", ylab = "E[Return]", main = "CVaR Frontier")
@@ -1362,10 +1396,12 @@ parma.test9 = function()
 parma.test10 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
+	library(xts)
+	data("etfdata")
+	Data = etfdata/lag(etfdata)-1
+	Data = na.omit(Data)	
 	require(rmgarch)
 	require(parallel)
-	Data = timeSeries::returns(etfdata)
 	m = c(1,2,3,4,5,7,8,9,10, 11, 12, 13)
 	
 	cl = makePSOCKcluster(5)
@@ -1444,15 +1480,444 @@ parma.test10 = function()
 	
 	toc = Sys.time() - tic
 	return(toc)
-
 }
+# SOCP Tests
+parma.test11 = function()
+{
+	library(xts)
+	data("etfdata")
+	R = etfdata/lag(etfdata)-1
+	R = na.omit(R)
+	
+	sectors = matrix(rep(0, 15), nrow=1)
+	sectors[1,c(1,4,5,10,12,15)]= 1
+	sectorsLB = 0
+	sectorsUB = 0.3
+	S = cov(coredata(R))
+	fmu = colMeans(coredata(R))
+	fmub = median(fmu)
+	
+	control=list(abs.tol = 1e-12, rel.tol = 1e-12, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	
+	# Example 1: Minimize Risk, Subject to return
+	# plus inequality constraint
+	LB = rep(0, 15)
+	UB = rep(0.5, 15)
+	spec = parmaspec(S = S, forecast = fmu, target = fmub, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "equality",
+			ineq.mat = sectors, ineq.LB = 0, ineq.UB = 0.3, budget = 1)
+	
+	sol.socp = parmasolve(spec, solver.control = control, type="SOCP")
+	sol.qp = parmasolve(spec, type = "QP")
+	
+	zz <- file("parma_test11a_minrisk_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP - QP")
+	cat("\n--------------------------------------------\n")
+	print(round(matrix(weights(sol.socp) - weights(sol.qp), ncol=1), 5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	# frontier
+	spec = parmaspec(S = S, forecast = fmu, target = NULL, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "equality",
+			budget = 1)
+	control=list(abs.tol = 1e-8, rel.tol = 1e-8, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	frontsocp = parmafrontier(spec, n.points = 100, miny = NULL, maxy = NULL, 
+			type = "SOCP", solver.control = control)
+	
+	frontqp = parmafrontier(spec, n.points = 100, miny = NULL, maxy = NULL, 
+			type = "QP", solver.control = control)
+	# ok to ignore warnings...just indicating points outside the feasible frontier
+	postscript("parma_test11a.eps", width = 12, height = 8)
+	plot(frontqp[,"EV"], frontqp[,"reward"], type="l", xlab = "risk", ylab="reward",
+			main = "EV Frontier\n[QP and SOCP]", cex.main=0.9)
+	points(frontsocp[,"EV"], frontsocp[,"reward"], col = 2)
+	legend("topleft", c("QP","SOCP"), col = 1:2, bty="n", lty=c(1,0), pch=c(-1,1))
+	dev.off()
+	
+	# Example 2: Minimize Risk, Subject to return
+	# plus inequality constraint and benchmark
+	control=list(abs.tol = 1e-9, rel.tol = 1e-9, Nu=5, max.iter=1250, BigM.K = 4, BigM.iter = 15)
+	LB = rep(0, 15)
+	UB = rep(0.5, 15)
+	set.seed(100)
+	wb = rexp(15)
+	wb = wb/sum(wb)
+	B = apply(R, 1, function(x) sum(x*wb))
+	bS = c(var(B), cov(B, R))
+	
+	spec = parmaspec(S = S, benchmarkS = bS, 
+			forecast = fmu - mean(B), target = fmub-mean(B), LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "inequality",
+			ineq.mat = sectors, ineq.LB = 0, ineq.UB = 0.5, budget = 1)
+	
+	sol.socp = parmasolve(spec, solver.control = control, type="SOCP")
+	sol.qp = parmasolve(spec, type = "QP")
+	
+	zz <- file("parma_test11b_minrisk_benchmark_relative_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP - QP")
+	cat("\n--------------------------------------------\n")
+	print(round(matrix(weights(sol.socp) - weights(sol.qp), ncol=1), 5))
+	sink(type="message")
+	sink()
+	close(zz)
+		
+	# Note: equality target constraint is difficult to solve using this SOCP solver
+	# because of its quality/sophistication....
+	# frontier
+	spec = parmaspec(S = S, benchmarkS = bS, 
+			forecast = fmu - mean(B), target = NULL, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "equality",
+			ineq.mat = sectors, ineq.LB = 0, ineq.UB = 0.5, budget = 1)
+	control=list(abs.tol = 1e-8, rel.tol = 1e-8, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	frontsocp = parmafrontier(spec, n.points = 100, miny = NULL, maxy = NULL, 
+			type = "SOCP", solver.control = control)
+	
+	frontqp = parmafrontier(spec, n.points = 100, miny = NULL, maxy = NULL, 
+			type = "QP", solver.control = control)
+	
+	postscript("parma_test11b.eps", width = 12, height = 8)
+	plot(frontqp[,"EV"], frontqp[,"reward"], type="l", xlab = "risk", ylab="reward",
+			main = "EV Benchmark-Relative Frontier\n[QP and SOCP]", cex.main=0.9)
+	points(frontsocp[,"EV"], frontsocp[,"reward"], col = 2)
+	legend("topleft", c("QP","SOCP"), col = 1:2, bty="n", lty=c(1,0), pch=c(-1,1))
+	dev.off()
+	
+	##############################################
+	# Example 3: Optimize Risk-Reward (fractional SOCP problem)
+	control=list(abs.tol = 1e-9, rel.tol = 1e-9, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 25)
+	LB = rep(0, 15)
+	UB = rep(0.5, 15)
+	spec = parmaspec(S = S, forecast = fmu, target = NULL, LB = LB, UB = UB,
+			risk = "EV", riskType = "optimal", budget = 1)
+	
+	sol.socp = parmasolve(spec, solver.control = control, type="SOCP")
+	sol.qp = parmasolve(spec, type = "QP")
+	
+	zz <- file("parma_test11c_fractional_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP - QP")
+	cat("\n--------------------------------------------\n")
+	print(round(matrix(weights(sol.socp) - weights(sol.qp), ncol=1), 5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	##############################################
+	# Example 4: Optimize Benchmark Risk-Reward (fractional)
+	control=list(abs.tol = 1e-8, rel.tol = 1e-8, Nu=5, max.iter=3250,
+			BigM.K = 4, BigM.iter = 45)
+	LB = rep(0, 15)
+	UB = rep(0.5, 15)
+	set.seed(22)
+	wb = rexp(15)
+	wb = wb/sum(wb)
+	B = apply(R, 1, function(x) sum(x*wb))
+	bS = c(var(B), cov(B, R))
+	
+	
+	spec = parmaspec(S = S, forecast = fmu - mean(B), 
+			benchmarkS = bS, target = NULL, LB = LB, UB = UB,
+			risk = "EV", riskType = "optimal", budget = 1)
+	
+	sol.socp = parmasolve(spec, solver.control = control, type="SOCP")
+	sol.qp = parmasolve(spec, type = "QP")
+	
+	
+	w1 = weights(sol.socp)
+	w2 = weights(sol.qp)
+	
+	risk1 = sqrt(parmarisk(sol.socp))/parmareward(sol.socp)
+	risk2 = sqrt(parmarisk(sol.qp))/parmareward(sol.qp)
+	
+	zz <- file("parma_test11d_benchmark_fractional_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & QP")
+	cat("\n--------------------------------------------\n")
+	print(round(cbind(weights(sol.socp), weights(sol.qp)), 5))
+	print(cbind(risk1, risk2))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	##############################################
+	# Example 5: Max-Reward, Min Risk, and optimal on Frontier
+	LB = rep(0, 15)
+	UB = rep(1, 15)
+	spec = parmaspec(S = S, forecast = fmu, target = NULL, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "equality",budget = 1)
+	control=list(abs.tol = 1e-8, rel.tol = 1e-8, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	frontsocp = parmafrontier(spec, n.points = 100, miny = NULL, maxy = NULL, 
+			type = "SOCP", solver.control = control)
+	
+	spec1 = parmaspec(S = S, forecast = fmu, target = frontsocp[1,"reward"], LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", budget = 1)
+	p1 = parmasolve(spec1, type="SOCP")
+	
+	spec2 = parmaspec(S = S, forecast = fmu, riskB = sqrt(tail(frontsocp[,"EV"],1)), 
+			LB = LB, UB = UB, risk = "EV", riskType = "maxreward", budget = 1)
+	p2 = parmasolve(spec2, type="SOCP")
+	
+	spec3 = parmaspec(S = S, forecast = fmu, LB = LB, UB = UB, risk = "EV", 
+			riskType = "optimal", budget = 1)
+	p3 = parmasolve(spec3, type="SOCP")
+	
+	# find optimal:
+	evr = sqrt(frontsocp[,"EV"])/frontsocp[,"reward"]
+	idx = which(evr == min(evr))
+	
+	postscript("parma_test11c.eps", width = 12, height = 8)
+	plot(frontsocp[,"EV"], frontsocp[,"reward"], type="l", xlab = "risk", ylab="reward",
+			main = "EV Frontier\n[SOCP]", cex.main=0.9)
+	points(parmarisk(p1), parmareward(p1), col = 2)
+	points(parmarisk(p2), parmareward(p2), col = 4)
+	points(parmarisk(p3), parmareward(p3), col = 3)
+	points(frontsocp[idx,"EV"], frontsocp[idx,"reward"], col = "steelblue", pch=4)
+	legend("topleft", c("Frontier","MinRisk","Optimal (Analytical)", "Optimal (Frontier)", "MaxReward"), 
+			col = c(1,2,3,"steelblue",4), 
+			bty="n", lty=c(1,0,0,0,0), pch=c(-1,1,1,4,1))
+	dev.off()
+	
+	##############################################
+	# Example 6: Long/Short Optimization
+	LB = rep(-1, 15)
+	UB = rep( 1, 15)
+	control=list(abs.tol = 1e-12, rel.tol = 1e-12, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	# minrisk
+	spec1 = parmaspec(S = S, forecast = fmu, target = fmub, LB = LB, UB = UB, budget = NULL,
+			risk = "EV", riskType = "minrisk", targetType = "equality", leverage = 1.5)
+	
+	sol.socp = parmasolve(spec1, solver.control = control, type="SOCP")
+	
+	
+	spec2 = parmaspec(scenario = R, forecast = fmu, target = fmub, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "equality", leverage = 1.5)
+	
+	sol.nlp = parmasolve(spec2, type="NLP")
+	
+	zz <- file("parma_test11e_longshort_minrisk_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & QP")
+	cat("\n--------------------------------------------\n")
+	print(round(cbind(weights(sol.socp), weights(sol.nlp)),5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	# optimal
+	spec1 = parmaspec(S = S, forecast = fmu, LB = LB, UB = UB, budget = NULL,
+			risk = "EV", riskType = "optimal", targetType = "equality", leverage = 1.5)
+	
+	sol.socp = parmasolve(spec1, solver.control = control, type="SOCP")
+	
+	
+	spec2 = parmaspec(scenario = R, forecast = fmu, LB = LB, UB = UB,
+			risk = "EV", riskType = "optimal", targetType = "equality", leverage = 1.5)
+	
+	sol.nlp = parmasolve(spec2, type="NLP")
+	
+	zz <- file("parma_test11f_longshort_fractional_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & NLP")
+	cat("\n--------------------------------------------\n")
+	print(	round(cbind(c(weights(sol.socp),sqrt(parmarisk(sol.socp)), parmareward(sol.socp)), 
+							c(weights(sol.nlp), sqrt(parmarisk(sol.nlp)), parmareward(sol.nlp))),5))
+	sink(type="message")
+	sink()
+	close(zz)
 
+	
+	##############################################
+	# Example 7: minrisk with budget AND leverage
+	spec1 = parmaspec(S = S, forecast = fmu, target = fmub, LB = LB, UB = UB, budget = 1,
+			risk = "EV", riskType = "minrisk", targetType = "equality", leverage = 1.5)
+	
+	sol.socp = parmasolve(spec1, solver.control = control, type="SOCP")
+	
+	# NLP does not currently accept both budget and leverage (should probably changes this)
+	# but we can easily supply this as a constraint:
+	eqfun = function(w, optvars, uservars)
+	{
+		return(sum(w[optvars$widx])-1)
+	}
+	eqfun.jac = function(w, optvars, uservars){
+		widx = optvars$widx
+		fm = optvars$fm
+		j = matrix(0, nrow=1, ncol=fm)
+		j[1, widx] = 1
+		return(j)
+	}
+	
+	spec2 = parmaspec(scenario = R, forecast = fmu, target = fmub, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "equality", leverage = 1.5,
+			eqfun = list(eqfun), eqgrad = list(eqfun.jac))
+	
+	sol.nlp = parmasolve(spec2, type="NLP")
+	
+	zz <- file("parma_test11g_longshort_fractional_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & NLP")
+	cat("\n--------------------------------------------\n")
+	print(round(cbind(weights(sol.socp), weights(sol.nlp)),5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	
+	# optrisk with budget and leverage
+	control=list(abs.tol = 1e-8, rel.tol = 1e-8, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 35)
+	spec1 = parmaspec(S = S, forecast = fmu, LB = LB, UB = UB, budget = 1,
+			risk = "EV", riskType = "optimal", leverage = 1.5)
+	
+	sol.socp = parmasolve(spec1, solver.control = control, type="SOCP")
+	
+	
+	eqfun = function(w, optvars, uservars)
+	{
+		return(sum(w[optvars$widx])-w[optvars$midx])
+	}
+	eqfun.jac = function(w, optvars, uservars){
+		widx = optvars$widx
+		fm = optvars$fm
+		j = matrix(0, nrow=1, ncol=fm)
+		j[1, widx] = 1
+		j[1, optvars$midx] = -1
+		return(j)
+	}
+	spec2 = parmaspec(scenario = R, forecast = fmu, target = fmub, LB = LB, UB = UB,
+			risk = "EV", riskType = "optimal", targetType = "equality", leverage = 1.5,
+			eqfun = list(eqfun), eqgrad = list(eqfun.jac))
+	
+	sol.nlp = parmasolve(spec2, type="NLP")
+	
+	zz <- file("parma_test11h_longshort_fractional_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & NLP")
+	cat("\n--------------------------------------------\n")
+	print(round(cbind(c(weights(sol.socp),sqrt(parmarisk(sol.socp))/parmareward(sol.socp)), 
+							c(weights(sol.nlp), sqrt(parmarisk(sol.nlp))/parmareward(sol.nlp))),5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	
+	##############################################
+	# Example 8: QCQP
+	LB = rep(0, 15)
+	UB = rep( 1, 15)
+	control=list(abs.tol = 1e-12, rel.tol = 1e-12, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	
+	Q = cov(tail(R, 200))
+	
+	spec1 = parmaspec(S = S, Q = list(Q), qB = 0.01, 
+			forecast = fmu, target = fmub, LB = LB, UB = UB, budget = 1,
+			risk = "EV", riskType = "minrisk", targetType = "inequality")
+	
+	sol.socp = parmasolve(spec1, solver.control = control, type="SOCP")
+	
+	# create NLP constraint
+	
+	ineqfun = function(w, optvars, uservars)
+	{
+		sqrt(w[optvars$widx]%*%uservars$Q%*%w[optvars$widx])-0.01
+	}
+	
+	ineq.jac = function(w, optvars, uservars)
+	{
+		widx = optvars$widx
+		fm = optvars$fm
+		j = matrix(0, nrow=1, ncol=fm)
+		j[1, widx] = ( (2*w[widx]%*%uservars$Q) )/(2*sqrt(w[widx]%*%uservars$Q%*%w[widx])[1])
+		return(j)
+	}
+	uservars = list()
+	uservars$Q = Q
+	spec2 = parmaspec(scenario = R, forecast = fmu, target = fmub, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "inequality", budget = 1,
+			ineqfun = list(ineqfun), ineqgrad = list(ineq.jac), uservars = uservars)
+	
+	sol.nlp = parmasolve(spec2, type="NLP")
+	
+	zz <- file("parma_test11i_QCQP_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & NLP")
+	cat("\n--------------------------------------------\n")
+	print(round(cbind(weights(sol.socp), weights(sol.nlp)),5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	# QCQP/LongShort
+	LB = rep(-1, 15)
+	UB = rep( 1, 15)
+	control=list(abs.tol = 1e-12, rel.tol = 1e-12, Nu=4, max.iter=1250,
+			BigM.K = 4, BigM.iter = 15)
+	
+	Q = cov(tail(R, 200))
+	
+	spec1 = parmaspec(S = S, Q = list(Q), qB = 0.005, 
+			forecast = fmu, target = fmub, LB = LB, UB = UB, budget = NULL,
+			leverage = 1.5,
+			risk = "EV", riskType = "minrisk", targetType = "inequality")
+	
+	sol.socp = parmasolve(spec1, solver.control = control, type="SOCP")
+	
+	# create NLP constraint
+	
+	ineqfun = function(w, optvars, uservars)
+	{
+		sqrt(w[optvars$widx]%*%uservars$Q%*%w[optvars$widx])-0.005
+	}
+	
+	ineq.jac = function(w, optvars, uservars)
+	{
+		widx = optvars$widx
+		fm = optvars$fm
+		j = matrix(0, nrow=1, ncol=fm)
+		j[1, widx] = ( (2*w[widx]%*%uservars$Q) )/(2*sqrt(w[widx]%*%uservars$Q%*%w[widx])[1])
+		return(j)
+	}
+	uservars = list()
+	uservars$Q = Q
+	spec2 = parmaspec(scenario = R, forecast = fmu, target = fmub, LB = LB, UB = UB,
+			risk = "EV", riskType = "minrisk", targetType = "inequality", leverage = 1.5,
+			ineqfun = list(ineqfun), ineqgrad = list(ineq.jac), uservars = uservars)
+	
+	sol.nlp = parmasolve(spec2, type="NLP")
+	
+	zz <- file("parma_test11j_QCQP_socp.txt", open="wt")
+	sink(zz)
+	cat("\nSOCP & NLP")
+	cat("\n--------------------------------------------\n")
+	print(	round(cbind(weights(sol.socp), weights(sol.nlp)),5))
+	sink(type="message")
+	sink()
+	close(zz)
+	
+	toc = Sys.time() - tic
+	
+	
+}
 ##### MILP Tests ##### 
 parma.test13 = function()
 {
 	tic = Sys.time()
-	if(!is.loaded("etfdata")) data(etfdata)
-	S = timeSeries::returns(etfdata)
+	library(xts)
+	data("etfdata")
+	S = etfdata/lag(etfdata)-1
+	S = na.omit(S)
+	
 	
 	w = matrix(NA, ncol = 15, nrow = 4)
 	rr = matrix(NA, ncol = 2, nrow = 4)
@@ -1469,11 +1934,11 @@ parma.test13 = function()
 		rr[i,2] = parmareward(sol)
 	}
 	# eliminate all zeros
-	colnames(w) = colnames(Data)
+	colnames(w) = colnames(S)
 	rownames(w) = rmeasure
 	idx = which(apply(w, 2, FUN = function(x) sum(x)) == 0)
 	wnew = w[,-idx]
-	wnew = rbind(wnew, rep(0, 4))
+	wnew = rbind(wnew, rep(0, ncol(wnew)))
 	
 	postscript("parma_test13.eps", width = 12, height = 8)
 	barplot(t(wnew), legend.text = TRUE, space=  0, col = c("red", "coral", "steelblue", "cadetblue", "aliceblue"),
@@ -1502,8 +1967,8 @@ parma.test13 = function()
 				targetType = "inequality", risk = rmeasure[i], riskType = "minrisk", 
 				options = list(moment = 1, threshold = 999, alpha = 0.05),
 				LB = rep(0, 15), UB = rep(0.5, 15), budget = 1,
-				asset.names = colnames(Data[,1:m]))
-		sol1 = parmasolve(spec, type = "LP")
+				asset.names = colnames(S))
+		sol1 = parmasolve(spec, type = "LP", solver="GLPK")
 		sol2 = parmasolve(spec, type = "GNLP", solver = "cmaes", solver.control = ctrl)
 	
 		

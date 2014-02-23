@@ -75,8 +75,10 @@ ctrl$options$Restarts = 0
 ctrl$options$MaxIter = 3000
 ctrl$options$TolUpX = 5
 ctrl$options$PopSize = 300
-test1 = cmaes(rnorm(10), fun = parma:::fsphere, lower = -Inf, upper = Inf, insigma = 1, ctrl = ctrl)
-test2 = cmaes(rnorm(10), fun = parma:::frosenbrock, lower = -Inf, upper = Inf, insigma = 1, ctrl = ctrl)
+test1 = cmaes(rnorm(10), fun = parma:::fsphere, 
+lower = -Inf, upper = Inf, insigma = 1, ctrl = ctrl)
+test2 = cmaes(rnorm(10), fun = parma:::frosenbrock, 
+lower = -Inf, upper = Inf, insigma = 1, ctrl = ctrl)
 
 ctrl = cmaes.control()
 ctrl$options$StopOnWarnings = FALSE
@@ -86,5 +88,6 @@ ctrl$options$DispModulo=100
 ctrl$options$Restarts = 0
 ctrl$options$MaxIter = 3000
 ctrl$options$PopSize = 400
-test3 = cmaes(rep(1, 10), fun = parma:::frastrigin10, lower = -50, upper = 50, insigma = 1, ctrl = ctrl)
+test3 = cmaes(rep(1, 10), fun = parma:::frastrigin10, 
+lower = -50, upper = 50, insigma = 1, ctrl = ctrl)
 }}

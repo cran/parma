@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -807,4 +809,119 @@ nlpport = function(optvars, uservars, control = list(), ...)
 	if( is.null(control$maxtime) ) ctrl$maxtime = 10000 else  ctrl$maxtime = control$maxtime
 	if( is.null(control$print_level) ) ctrl$print_level = 0 else  ctrl$print_level = as.integer( control$print_level )
 	return(ctrl)
+}
+
+###############################################################################
+# Some Custom Constraints:
+
+#-----------------------------------------------------
+# Turnover
+#-----------------------------------------------------
+# Minimum Risk
+ineqfun.turnover.min = function(w, optvars, uservars){
+	widx = optvars$widx
+	wold = uservars$wold
+	return( sum( func.abs.smooth(w[widx] - wold) ) - uservars$turnover )
+}
+
+ineqjac.turnover.min = function(w, optvars, uservars){
+	widx = optvars$widx
+	fm = optvars$fm
+	j = matrix(0, 1, fm)
+	j[1, widx] = grad.abs.smooth(w[widx]- uservars$wold)
+	return(j)
+}
+
+ineqfun.bsturnover.min = function(w, optvars, uservars){
+	widx = optvars$widx
+	wold = uservars$wold
+	bt = sum(func.max.smooth(w[widx] - wold)) - uservars$buyturnover
+	st = sum(func.max.smooth(wold - w[widx])) - uservars$sellturnover
+	return(c(bt, st))
+}
+
+ineqjac.bsturnover.min = function(w, optvars, uservars){
+	widx = optvars$widx
+	fm = optvars$fm
+	j = matrix(0, 2, fm)
+	j[1, widx] = 0.25*(-2*uservars$wold+2*w[widx])/sqrt( (-uservars$wold + w[widx])^2 + parma.Small ) + 0.5
+	j[2, widx] = 0.25*(-2*uservars$wold+2*w[widx])/sqrt( (uservars$wold - w[widx])^2 + parma.Small ) - 0.5
+	return(j)
+}
+
+#-------------------------------------------------------------------------------
+# Fractional
+ineqfun.turnover.opt = function(w, optvars, uservars){
+	widx = optvars$widx
+	midx = optvars$midx
+	wold = uservars$wold
+	print(sum(w[widx]/w[midx]))
+	return( sum( func.abs.smooth(w[widx]/w[midx] - wold) ) - uservars$turnover )
+}
+
+ineqjac.turnover.opt = function(w, optvars, uservars){
+	widx = optvars$widx
+	midx = optvars$midx
+	fm = optvars$fm
+	j = matrix(0, 1, fm)
+	tmp = w[widx]/w[midx] - uservars$wold + 1e-20
+	j[1, widx] = tmp/(w[midx]*sqrt(tmp^2))
+	j[1, midx] = sum(- ( (tmp*w[widx])/( (w[midx]^2)*sqrt(tmp^2) ) ) )
+	return(j)
+}
+
+
+ineqfun.bsturnover.opt = function(w, optvars, uservars){
+	widx = optvars$widx
+	wold = uservars$wold
+	midx = optvars$midx
+	bt = sum(func.max.smooth(w[widx]/w[midx] - wold)) - uservars$buyturnover
+	st = sum(func.max.smooth(wold - w[widx]/w[midx])) - uservars$sellturnover
+	return(c(bt, st))
+}
+
+ineqjac.bsturnover.opt = function(w, optvars, uservars){
+	widx = optvars$widx
+	midx = optvars$midx
+	fm = optvars$fm
+	j = matrix(0, 2, fm)
+	tmp = w[widx]/w[midx] - uservars$wold
+	j[1, widx] = 0.5*(tmp/(w[midx]*sqrt(tmp^2+1e-20))) + 0.5/w[midx]
+	j[1, midx] = sum( - 0.5*tmp*w[widx]/(w[midx]^2*sqrt(tmp^2+1e-20)) - 0.5*w[widx]/w[midx]^2 )
+	tmp = -w[widx]/w[midx] + uservars$wold
+	j[2, widx] = -0.5*(tmp/(w[midx]*sqrt(tmp^2+1e-20))) - 0.5/w[midx]
+	j[2, midx] = sum( 0.5*tmp*w[widx]/(w[midx]^2*sqrt(tmp^2+1e-20)) + 0.5*w[widx]/w[midx]^2 )
+	return(j)
+}
+ineqfun.variance.opt = function(w, optvars, uservars)
+{
+	# rescaled weights
+	x = w[optvars$widx]/w[optvars$midx]
+	return( as.numeric( x %*% uservars$Cov %*% x) - uservars$varbound )
+}
+ineqjac.variance.opt = function(w, optvars, uservars){
+	g = matrix(0, ncol = optvars$fm, nrow = 1)
+	widx = optvars$widx
+	midx = optvars$midx
+	x = w[widx]
+	tmp1 = w[widx]/w[midx]
+	tmp2 = w[widx]/w[midx]^2
+	g[1, widx] = as.numeric( ( tmp1 %*% uservars$Cov)/w[midx] + (x %*% uservars$Cov)/w[midx]^2 )
+	g[1, midx] = as.numeric( ( (tmp2/w[midx]) %*% -uservars$Cov)%*%w[widx]- ( (tmp1/w[midx]^2) %*% uservars$Cov )%*%w[widx] )
+	return(g)
+}
+
+
+ineqfun.variance.min = function(w, optvars, uservars)
+{
+	x = w[optvars$widx]
+	return( as.numeric( x %*% uservars$Cov %*% x) - uservars$varbound )
+}
+ineqjac.variance.min = function(w, optvars, uservars){
+	g = matrix(0, ncol = optvars$fm, nrow = 1)
+	widx = optvars$widx
+	midx = optvars$midx
+	x = w[widx]
+	g[1, widx] = as.numeric( 2*x %*% uservars$Cov )
+	return(g)
 }

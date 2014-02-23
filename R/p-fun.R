@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -14,7 +16,6 @@
 ##   GNU General Public License for more details.
 ##
 #################################################################################
-
 # Shannon Entropy
 sentropy = function(w){
 	if(any(w)<0){
@@ -235,3 +236,11 @@ simweights = function(m, LB = 0, UB = 1, budget=1, forecast=rep(0,m), constrain.
 is.even = function(x){ as.logical( (round(x)+1)%%2 ) }
 
 .logtransform = function(x, LB, UB){ LB + (UB - LB)/(1+exp(-x))}
+
+# matrix square root via svd
+.sqrtm = function(x)
+{
+	tmp = svd(x)
+	sqrtx = tmp$u%*%sqrt(diag(tmp$d))%*%t(tmp$u)
+	return(sqrtx)
+}

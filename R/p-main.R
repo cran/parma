@@ -1,6 +1,8 @@
 #################################################################################
 ##
-##   R package parma by Alexios Ghalanos Copyright (C) 2012-2013
+##   R package parma
+##   Alexios Ghalanos Copyright (C) 2012-2013 (<=Aug)
+##   Alexios Ghalanos and Bernhard Pfaff Copyright (C) 2013- (>Aug)
 ##   This file is part of the R package parma.
 ##
 ##   The R package parma is free software: you can redistribute it and/or modify
@@ -14,13 +16,13 @@
 ##   GNU General Public License for more details.
 ##
 #################################################################################
-.parmaspec = function(scenario = NULL, probability = NULL, S = NULL, 
-		benchmark = NULL, benchmarkS = NULL, forecast = NULL, target = NULL, 
+.parmaspec = function(scenario = NULL, probability = NULL, S = NULL, Q = NULL,
+		qB = NULL, benchmark = NULL, benchmarkS = NULL, forecast = NULL, target = NULL, 
 		targetType =  c("inequality", "equality"), 
 		risk = c("MAD", "MiniMax", "CVaR", "CDaR", "EV", "LPM", "LPMUPM"), 
-		riskType = c("minrisk", "optimal"), 
+		riskType = c("minrisk", "optimal", "maxreward"), riskB = NULL,
 		options = list(alpha = 0.05, threshold = 999, moment = 1, 
-				lmoment = 1, umoment = 1, lthreshold = -0.01, uthreshold = 0.01), 		
+				lmoment = 1, umoment = 1, lthreshold = -0.01, uthreshold = 0.01), 
 		LB = NULL, UB = NULL, budget = 1, leverage = NULL, 
 		ineqfun = NULL, ineqgrad = NULL, eqfun = NULL, eqgrad = NULL, 
 		uservars = list(), ineq.mat = NULL, ineq.LB = NULL, 
@@ -40,13 +42,14 @@
 	# benchmark: 1 (TRUE), 0 (FALSE)
 	# targettype: 1 = inequality, 2 = equality
 	# risk: 1 (MAD), 2 (MiniMax), 3 (CVaR), 4 (CDaR), 5(EV), 6 (LPM), 7 (LPMUPM)
-	# risktype: 1 = minrisk, 2 = optimal (fractional)
+	# risktype: 1 = minrisk, 2 = optimal (fractional), 3 = maxreward (only for EV)
 	# leverage: !=0
 	type = rep(0, 8)
-	# problem types c("LP", "MILP", "QP", "MIQP", "QCQP", "NLP", "MINLP", "GNLP")
+	# problem types c("LP", "MILP", "QP", "MIQP", "SOCP", "NLP", "MINLP", "GNLP")
 	
 	if(is.null(scenario) && is.null(S)) stop("\nparma: You cannot have both the scenario AND covariance matrix (S) NULL!")
 	if(!is.null(scenario)){
+		if(tolower(riskType)=="maxreward") stop("\nparma: maxreward type only supported for covariance matrix (S) at present.")
 		S = NULL #  set this to NULL in case both are not NULL!
 		scenario = as.matrix(scenario)
 		indx[1] = 1
@@ -327,7 +330,7 @@
 		if(is.null(leverage)){
 			if(is.null(budget)){
 				budget = 1
-				warning("\nparma: no budget provided...setting budget constraint to 1.")
+				warning("\nparma: no budget (or leverage) provided...setting budget constraint to 1.")
 			}
 		} else{
 			indx[6] = 1
@@ -367,7 +370,7 @@
 		midx = 1
 		vidx = 0
 		widx = 2:(m+1)
-		if(riskType == "optimal") midx=1
+		
 		if( !is.null(max.pos) ){
 			if(hasmiqp){
 				type[4] = 1
@@ -375,9 +378,30 @@
 				stop("\nparma: max.pos NOT NULL but MIQP not available!")
 			}
 		} else{
-			# in future will allow QCQP and add SS constraint matrices in specification (list of PD matrices)
-			type[3] = 1
+			# Q is a list of matrices
+			if(!is.null(Q)){
+				type[5] = 1
+				if(riskType == "optimal") stop("\nparma: QCQP not yet implemented for optimal risk problem")
+				#if(ncol(Q)!=m | nrow(Q)!=m) stop("\nparma: Q matrix dimensions must be the same as S.")
+			} else{
+				type[3] = 1
+				type[5] = 1
+			}
 		}
+		if(!is.null(leverage)){
+			if(leverage<=0) stop("\nparma: leverage must be strictly positive!")
+			# leverage only allowed in SOCP formulation
+			type[3] = 0
+			type[5] = 1
+			indx[6] = as.numeric( leverage )
+		}
+		if(tolower(riskType)=="maxreward"){
+			# maxreward only supported by SOCP
+			type[3] = 0
+			type[5] = 1
+		}
+		if(riskType == "optimal") midx=1
+		
 		if(tolower(risk[1])!="ev") stop("\nparma: only EV risk type allowed with covariance matrix (S)")
 		indx[1] = 2
 		indx[8] = m
@@ -401,16 +425,26 @@
 			if(tolower(riskType[1]) == "minrisk"){
 				warning("\nparma: no target provided...setting target reward to zero.")
 				indx[5] = 1
-			} else{
+			} else if(tolower(riskType[1])=="optimal"){
 				indx[5] = 2
+			} else{
+				indx[5] = 3
+				if(is.null(riskB)) stop("\nparma: maxreward option chosen but riskB not provided!")
+				riskB = as.numeric(riskB[1])
 			}
 		} else{
 			target = as.numeric(target)[1]
 			if(tolower(riskType[1]) == "minrisk"){
 				indx[5] = 1
-			} else{
+			} else if(tolower(riskType[1])=="optimal"){
 				indx[5] = 2
-			}		
+			} else{
+				indx[5] = 3
+				if(is.null(riskB)) stop("\nparma: maxreward option chosen but riskB not provided!")
+				riskB = as.numeric(riskB[1])
+				target = NULL
+				warning("\nparma: maxreward chosen AND target given...setting target to NULL.")
+			}
 		}
 		tmp =  match(tolower(targetType[1]), c("inequality", "equality"))
 		if(is.na(tmp)) stop("\nparma: targetType not recognized") else targetType = c("inequality", "equality")[tmp]
@@ -424,9 +458,11 @@
 			warning("\nparma: no UB provided...setting Upper Bounds to 1.")
 		}
 		if(any(UB<LB)) stop("\nparma: UB must be greater than LB.")
-		if(is.null(budget)){
-			budget = 1
-			warning("\nparma: no budget provided...setting budget constraint to 1.")
+		if(is.null(leverage)){
+			if(is.null(budget)){
+				budget = 1
+				warning("\nparma: no budget (or leverage) provided...setting budget constraint to 1.")
+			}
 		}
 		if(!is.null(ineq.mat)){
 			ineq.mat = as.matrix(ineq.mat)
@@ -437,7 +473,7 @@
 			if(nb!=length(ineq.UB)) stop("\nparma: ineq.mat rows not equal to length of ineq.UB")
 		}
 		if(!is.null(eq.mat)){
-			ineq.mat = as.matrix(eq.mat)
+			eq.mat = as.matrix(eq.mat)
 			nb = dim(eq.mat)[2]
 			if(nb!=m) stop("\nparma: eq.mat columns not equal to number of assets")
 			nb = dim(eq.mat)[1]
@@ -447,9 +483,9 @@
 	model = list(indx = indx, risk = risk, riskType = riskType, targetType = targetType,
 			options = options, type = type, widx = widx, midx = midx, vidx = vidx)
 	
-	modeldata = list(scenario = scenario, probability = probability, S = S, 
-			benchmark = benchmark, benchmarkS = benchmarkS, forecast = forecast, 
-			target = target, asset.names = asset.names, uservars = uservars)
+	modeldata = list(scenario = scenario, probability = probability, S = S, Q = Q,
+			qB = qB, benchmark = benchmark, benchmarkS = benchmarkS, forecast = forecast, 
+			target = target, riskB = riskB, asset.names = asset.names, uservars = uservars)
 	
 	constraints = list(LB = LB, UB = UB, budget = budget, leverage = leverage, 
 			ineqfun = ineqfun, ineqgrad = ineqgrad, eqfun = eqfun, eqgrad = eqgrad, 
@@ -826,8 +862,6 @@
 	return(optvars)
 }
 
-########## TODO
-# S, benchmarkS = NULL, benchmarkM = NULL, SS = NULL, SS.LB = NULL, SS.UB = NULL
 .spec2QP = function(spec){
 	optvars = list()
 	# optvars$widx = spec@model$widx
@@ -843,10 +877,37 @@
 	optvars$eq.mat    = spec@constraints$eq.mat
 	optvars$LB = spec@constraints$LB
 	optvars$UB = spec@constraints$UB
+	optvars$ineq.LB  = spec@constraints$ineq.LB
+	optvars$ineq.UB  = spec@constraints$ineq.UB	
+	optvars$eqB      = spec@constraints$eqB	
 	return(optvars)
 }
 
-.spec2LP = function(spec){	
+.spec2SOCP = function(spec){
+	optvars = list()
+	# optvars$widx = spec@model$widx
+	# optvars$midx = spec@model$midx
+	optvars$index = spec@model$indx
+	optvars$S = spec@modeldata$S
+	optvars$Q = spec@modeldata$Q
+	optvars$qB = spec@modeldata$qB
+	optvars$riskB = spec@modeldata$riskB
+	optvars$benchmarkS = spec@modeldata$benchmarkS
+	optvars$mu = spec@modeldata$forecast
+	optvars$mutarget = spec@modeldata$target
+	optvars$budget = spec@constraints$budget
+	optvars$leverage = spec@constraints$leverage
+	optvars$ineq.mat  = spec@constraints$ineq.mat
+	optvars$eq.mat    = spec@constraints$eq.mat
+	optvars$LB = spec@constraints$LB
+	optvars$UB = spec@constraints$UB
+	optvars$ineq.LB  = spec@constraints$ineq.LB
+	optvars$ineq.UB  = spec@constraints$ineq.UB	
+	optvars$eqB      = spec@constraints$eqB	
+	return(optvars)
+}
+
+.spec2LP = function(spec){
 	optvars = list()
 	optvars$index = spec@model$indx
 	if(spec@model$indx[2]==0){
@@ -900,14 +961,14 @@
 
 .parmasolve = function(spec, type = NULL, solver = NULL, solver.control = list(), 
 		x0 = NULL, w0 = NULL, parma.control = list(ubounds = 1e4, 
-				mbounds = 1e5, penalty = 1e4), ...){
+				mbounds = 1e5, penalty = 1e4, eqSlack = 1e-5), ...){
 	tic = Sys.time()
 	# pass the problem to the correct function and do some checks
 	# c("data", "benchmark", "target", "risk", "risktype", "leverage", "aux1", "aux2")
 	
 	if(is.null(parma.control)) parma.control = list()
 	
-	mm = match(names(parma.control), c("ubounds", "mbounds", "penalty"))
+	mm = match(names(parma.control), c("ubounds", "mbounds", "penalty","eqSlack"))
 	if(any(is.na(mm))){
 		idx = which(is.na(mm))
 		enx = NULL
@@ -917,8 +978,9 @@
 	if(is.null(parma.control$ubounds)) parma.control$ubounds = 1e4 else parma.control$ubounds = parma.control$ubounds[1]
 	if(is.null(parma.control$mbounds)) parma.control$mbounds = 1e5 else parma.control$mbounds = parma.control$mbounds[1]
 	if(is.null(parma.control$penalty)) parma.control$penalty = 1e4 else parma.control$penalty = parma.control$penalty[1]
+	if(is.null(parma.control$eqSlack)) parma.control$eqSlack = 1e-5 else parma.control$eqSlack = parma.control$eqSlack[1]
 	
-	available.problems = toupper(c("LP", "MILP", "QP", "MIQP", "QCQP", "NLP", "MINLP", "GNLP")[which(spec@model$type==1)])
+	available.problems = toupper(c("LP", "MILP", "QP", "MIQP", "SOCP", "NLP", "MINLP", "GNLP")[which(spec@model$type==1)])
 	
 	if(!is.null(type[1])){
 		type = toupper(type[1])
@@ -933,6 +995,7 @@
 				"milp" = .spec2LP(spec),
 				"nlp"  = .spec2minNLP(spec),
 				"qp"   = .spec2QP(spec),
+				"socp" = .spec2SOCP(spec),
 				"gnlp" = .spec2minGNLP(spec, parma.control))
 	} else{
 		optvars = switch(tolower(type),
@@ -940,6 +1003,7 @@
 				"milp" = .spec2LP(spec),
 				"nlp"  = .spec2optNLP(spec, parma.control),
 				"qp"   = .spec2QP(spec),
+				"socp" = .spec2SOCP(spec),
 				"gnlp" = .spec2optGNLP(spec, parma.control))
 	}
 	uservars = spec@modeldata$uservars	
@@ -951,20 +1015,23 @@
 		if(length(optvars$widx)!=length(w0)) stop("\nparma: wrong length for w0!")
 		optvars$x0[optvars$widx] = w0
 	}
-	sol = switch(type,
-			"LP"   = lpport(optvars, ...),
-			"MILP" = milpport(optvars, ...),
+	if(type=="LP" && is.null(solver)) solver="GLPK"
+	sol = switch(toupper(type),
+			"LP"   = lpport(optvars, solver, ...),
+			"MILP" = milpport(optvars, solver, ...),
 			"NLP"  = nlpport(optvars, uservars, control = solver.control, ...),
-			"QP"   = qpport(optvars, ...), 
+			"QP"   = qpport(optvars,   ...),
+			"SOCP" = socpport(optvars, control = solver.control, eqSlack = parma.control$eqSlack, ...),
 			"GNLP" = gnlpport(optvars, uservars, solver = solver, control = solver.control, ...))
 	# arbitrage check
-	if(type!="QP"){
+	if(type!="QP" & type!="SOCP"){
 		arbitrage = .arbcheck(sol$weights, spec@modeldata$scenario, spec@model$options, spec@model$risk)
 	} else{
 		arbitrage = c(0, 0)
 	}
 	spec@model$asset.names = spec@modeldata$asset.names
 	spec@model$type = type
+	sol$solver = solver
 	sol$arbitrage = arbitrage
 	toc = Sys.time() - tic
 	spec@model$elapsed = toc
@@ -981,8 +1048,8 @@
 {
 	if(!is.null(spec@modeldata$S))
 	{
-		ans = m.parmafrontier(spec, n.points = n.points, miny = miny, 
-				maxy = maxy, cluster = cluster)
+		ans = m.parmafrontier(spec, n.points = n.points, type = type, 
+				miny = miny, maxy = maxy, cluster = cluster)
 	} else {
 		ans = s.parmafrontier(spec, n.points = n.points, miny = miny, 
 				maxy = maxy, type = type, solver = solver, 
@@ -1027,10 +1094,10 @@ s.parmafrontier = function(spec, n.points = 100, miny = NULL,
 	fs = seq(minb, maxb, length.out = n.points)
 	fmat = matrix(NA, ncol = m+3, nrow = n.points)
 	if(!is.null(cluster)){
-		parallel::clusterEvalQ(cluster, require(parma))
-		parallel::clusterExport(cluster, c("fs", "spec", "type", "solver", 
+		clusterEvalQ(cluster, require(parma))
+		clusterExport(cluster, c("fs", "spec", "type", "solver", 
 						"solver.control","parma.control"), envir = environment())
-		sol = parallel::parLapply(cluster, 1:n.points, fun = function(i){
+		sol = parLapply(cluster, 1:n.points, fun = function(i){
 					xspec = spec
 					parmaset(xspec)<-list(target=fs[i])
 					tmp = parmasolve(xspec, type = type, solver = solver, 
@@ -1061,8 +1128,9 @@ s.parmafrontier = function(spec, n.points = 100, miny = NULL,
 	return(fmat)
 }
 
-m.parmafrontier = function(spec, n.points = 100, miny = NULL, maxy = NULL, 
-		cluster = NULL)
+m.parmafrontier = function(spec, n.points = 100, type = "QP", 
+		solver.control = list(abs.tol = 1e-8, rel.tol = 1e-8, Nu=2, max.iter=5250, 
+				BigM.K = 4, BigM.iter = 15), miny = NULL, maxy = NULL, cluster = NULL)
 {
 	targettype = parmaget(spec, "targetType")
 	risktype = parmaget(spec, "riskType")
@@ -1090,12 +1158,12 @@ m.parmafrontier = function(spec, n.points = 100, miny = NULL, maxy = NULL,
 	fs = seq(minb, maxb, length.out = n.points)
 	fmat = matrix(NA, ncol = m+2, nrow = n.points)
 	if(!is.null(cluster)){
-		parallel::clusterEvalQ(cluster, require(parma))
-		parallel::clusterExport(cluster, c("fs", "spec"), envir = environment())
-		sol = parallel::parLapply(cluster, 1:n.points, fun = function(i){
+		clusterEvalQ(cluster, require(parma))
+		clusterExport(cluster, c("fs", "spec","type","solver.control"), envir = environment())
+		sol = parLapply(cluster, 1:n.points, fun = function(i){
 					xspec = spec
 					parmaset(xspec)<-list(target=fs[i])
-					tmp = parmasolve(xspec, type = "QP")
+					tmp = parmasolve(xspec, type = type, solver.control = solver.control)
 					return(tmp)
 				})
 		for(i in 1:n.points){
@@ -1107,7 +1175,7 @@ m.parmafrontier = function(spec, n.points = 100, miny = NULL, maxy = NULL,
 		for(i in 1:n.points){
 			xspec = spec
 			parmaset(xspec)<-list(target=fs[i])
-			tmp = parmasolve(xspec, type = "QP")
+			tmp = parmasolve(xspec, type = type, solver.control = solver.control)
 			fmat[i,1:m] = weights(tmp)
 			fmat[i,m+1] = parmarisk(tmp)
 			fmat[i,m+2] = parmareward(tmp)

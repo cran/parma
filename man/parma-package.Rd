@@ -10,12 +10,13 @@ moment based optimization of portfolios.
 \tabular{ll}{
 Package: \tab parma\cr
 Type: \tab Package\cr
-Version: \tab 1.03\cr
-Date: \tab 2013-01-10\cr
+Version: \tab 1.5-1\cr
+Date: \tab 2014-02-23\cr
 License: \tab GPL\cr
 LazyLoad: \tab yes\cr
-Depends: \tab R (>= 2.10.0), methods, nloptr, Rglpk, quadprog\cr
-Suggests: \tab truncnorm, timeSeries\cr}
+Depends: \tab methods\cr
+Imports: \tab nloptr, Rglpk, quadprog\cr
+Suggests: \tab Rsymphony, truncnorm, timeSeries\cr}
 
 The portfolio allocation and risk managament applications (parma) package 
 contains a unique set of methods and models for the optimal allocation of 
@@ -44,17 +45,17 @@ optimization solver of Hansen (2006) with full features is implemented in
 \section{How to cite this package}{
   Whenever using this package, please cite as\cr
 
- \preformatted{@Manual{Ghalanos_2013,
- author       = {Alexios Ghalanos},
+ \preformatted{@Manual{Ghalanos_2014,
+ author       = {Alexios Ghalanos and Bernhard Pfaff},
  title        = {{parma}: Portfolio Allocation and Risk Management Applications.},
- year         = {2013},
- note 	      = {R package version 1.03.},}}
+ year         = {2014},
+ note 	      = {R package version 1.5-1.},}}
 \emph{}
 }
 \section{License}{
   The releases of this package is licensed under GPL version 3.
 }
-\author{Alexios Ghalanos}
+\author{Alexios Ghalanos and Bernhard Pfaff}
 \references{
 Charnes, A. and Cooper, W. 1962, Programming with linear fractional functionals,
 \emph{Naval Research Logistics Quarterly}, \bold{9}, 181--186.\cr

@@ -37,7 +37,7 @@ approach is. Serious users of GNLP problems should consider plugging in their
 own high quality global optimization solvers the majority of which are either
 non GPL or reside in another language\footnote{As a first attempt at
 providing a reasonable Global solver for such problems, a ported (from
-Matlab) version of the cmaes solver of \citeasnoun{Hansen2006} is made
+Matlab) version of the cmaes solver of \citet{Hansen2006} is made
 available in this package with a rather comprehensive set of control
 options.}. \\
 Finally, a separate set of functions is also included for utility maximization
@@ -59,7 +59,7 @@ The package is provided AS IS, without any implied warranty as to its accuracy
 or suitability. A lot of time and effort has gone into the development of this
 package, and it is offered under the GPL-3 license in the spirit of open
 knowledge sharing and dissemination. If you do use the model in published work
-DO remember to cite the package and author (type \textbf{citation("parma")} for
+DO remember to citet the package and author (type \textbf{citation("parma")} for
 the appropriate BibTeX entry).
 
 \section{Uncertainty and Scenario Based Allocation}\label{sec:1}
@@ -75,11 +75,11 @@ scenarios, representing the possible future path or paths of the underlying
 process (as a discrete time approximation to the continuous case)
 incorporating the uncertainty with respect to the model and future, and from
 which decisions can be based. These types of models were originally proposed
-and analyzed among others by \citename{Dantzig1956} (\citeyear*{Dantzig1956},
-\citeyear*{Dantzig1992}), \citeasnoun{Beale1955}, \citeasnoun{Dantzig1993},
-\citeasnoun{Madansky1962} and \citeasnoun{Charnes1959}. An excellent
+and analyzed among others by \citeauthor{Dantzig1956} (\citeyear{Dantzig1956},
+\citeyear{Dantzig1992}), \citet{Beale1955}, \citet{Dantzig1993},
+\citet{Madansky1962} and \citet{Charnes1959}. An excellent
 exposition of SP models in asset and liability management can be found in
-\citeasnoun{Kouwenberg2006}. Generally speaking, stochastic programming
+\citet{Kouwenberg2006}. Generally speaking, stochastic programming
 covers a spectrum of uncertainty from that of complete information
 (distribution model) to no information (anticipative model), with partial
 information allowing for adaptation and multistage models with recourse. In
@@ -90,9 +90,12 @@ For this purpose, the \emph{fscenario} function in the \textbf{rmgarch}
 package provides for a set of parametric data generating processes from which
 it is possible to generate such scenarios quite easily, as illustrated below:\\
 \newline
-\begin{lstlisting}
+\begin{Schunk}
+\begin{Sinput}
 > require(rmgarch)
 > args(fscenario)
+\end{Sinput}
+\begin{Soutput}
 function (Data, sim=1000, roll=0,
     model=c("gogarch", "dcc","cgarch", "var", "mdist"), spec=NULL,
     var.model=list(lag=1,lag.max=NULL,
@@ -105,7 +108,8 @@ function (Data, sim=1000, roll=0,
     solver.control=list(), fit.control=list(eval.se=FALSE),
     cluster=NULL, save.output=FALSE, save.dir=getwd(),
     save.name=paste("S", sample(1:1000,1), sep=""), rseed=NULL, ...)
-\end{lstlisting}
+\end{Soutput}
+\end{Schunk}
 The models currently supported, are the 3 multivariate GARCH models GO-GARCH,
 DCC and GARCH-Copula (DCC or non dynamic based) and the Vector AR model with
 optional choice the type of covariance matrix used (\emph{cov.method}) for
@@ -127,18 +131,25 @@ Taylor series approximation of CARA (\emph{parmautility}), for which it
 is possible to use, beyond the mean and covariance, higher co-moment tensors
 generated from the GO-GARCH with maNIG (or the more general maGH) distribution.
 \newline
-\begin{lstlisting}
+\begin{Schunk}
+\begin{Sinput}
 > args(fmoments)
+\end{Sinput}
+\begin{Soutput}
 function (spec, Data, n.ahead=1, roll=0, solver="solnp",
     solver.control=list(), fit.control=list(eval.se=FALSE),
     cluster=NULL, save.output=FALSE, save.dir=getwd(),
     save.name=paste("M", sample(1:1000, 1), sep=""), ...)
-\end{lstlisting}
+\end{Soutput}
+\end{Schunk}
 Scenarios or moments, whether they are derived from these auxiliary \textbf{rmgarch}
 wrapper functions or a user's own programs, then form part of the \textbf{parmaspec}
 function which defines the type of problem to be optimized:\\
-\begin{lstlisting}
+\begin{Schunk}
+\begin{Sinput}
 > args(parmaspec)
+\end{Sinput}
+\begin{Soutput}
 function (scenario=NULL, S=NULL, benchmark=NULL, benchmarkS=NULL,
     forecast=NULL, target=NULL, targetType=c("inequality", "equality"),
     risk=c("MAD", "MiniMax", "CVaR", "CDaR", "EV","LPM", "LPMUPM"),
@@ -147,7 +158,8 @@ function (scenario=NULL, S=NULL, benchmark=NULL, benchmarkS=NULL,
     budget=1, leverage=NULL, ineqfun=NULL, ineqgrad=NULL, eqfun=NULL,
     eqgrad=NULL, uservars=list(), ineq.mat=NULL, ineq.LB=NULL, ineq.UB=NULL,
     eq.mat=NULL, eqB=NULL, max.pos=NULL, asset.names=NULL, ...)
-\end{lstlisting}
+\end{Soutput}
+\end{Schunk}
 The function consists of the data inputs: either a scenario or covariance
 matrix and related optional benchmark details (for benchmark relative optimization),
 the forecast and optionally portfolio target and whether this should be a
@@ -166,16 +178,16 @@ value to the decision maker unless he is able to rank, choose and allocate
 among competing alternatives based on a set of preferences. Historically,
 theories of such preferences have been normative, describing a certain set of
 principles or axioms for rational behavior. The expected utility theory,
-first proposed by \citeasnoun{Bernoulli1954} as a solution to the
+first proposed by \citet{Bernoulli1954} as a solution to the
 St.Petersburg Paradox\footnote{Where the distinction between expected utility
-and expected return was made.}, and formalized by \citeasnoun{VonNeumann1944}
+and expected return was made.}, and formalized by \citet{VonNeumann1944}
 into 4 key axioms (Completeness, Transitivity, Independence, Continuity),
 provides the most popular approach\footnote{Though by no means the only
-approach. See for example \citeasnoun{Savage1962} for subjective expected
-utility, \citeasnoun{Quiggin1982} and \citeasnoun{Schmeidler1989} for rank
-dependent utility and \citeasnoun{Zadeh1965} for Fuzzy Logic.} to rational
+approach. See for example \citet{Savage1962} for subjective expected
+utility, \citet{Quiggin1982} and \citet{Schmeidler1989} for rank
+dependent utility and \citet{Zadeh1965} for Fuzzy Logic.} to rational
 decision making. Risk attitudes in expected utility theory are usually
-measured by the Arrow-Pratt (see \citeasnoun{Arrow1963}) definitions of
+measured by the Arrow-Pratt (see \citet{Arrow1963}) definitions of
 absolute and relative risk aversion (\emph{ARA} and \emph{RRA} respectively)
 which are standardized measures of the degree of curvature in the utility
 functions\footnote{ Formally, $ARA\left( W \right)= - \frac{{U''\left( W
@@ -188,7 +200,7 @@ In an attempt to depart from the utility framework altogether and to make
 use of criteria based on more objective and concrete concepts, a parallel
 strand of research has focused mainly on the concept of loss aversion. A
 first attempt at quantifying risk as the loss beyond a certain threshold was
-the Safety-First criterion of \citeasnoun{Roy1952} which aimed at minimizing
+the Safety-First criterion of \citet{Roy1952} which aimed at minimizing
 the probability of being below an investor's minimum acceptable return
 (\emph{MAR}). Later concepts have looked at improving on this measure by
 penalizing losses below the threshold at different rates representing
@@ -197,12 +209,12 @@ reward-risk approach has proved very popular both academically and in
 practise since it enables preferences to be summarized in a few scalar
 parameters such as the mean and variance. However, it was not until recently
 that formal qualifications of the properties of such measures where defined
-in seminal papers by \citeasnoun{Artzner1999} and \citeasnoun{Acerbi2002a} on
-risk and \citeasnoun{Rockafellar2006} on deviation, with the latter
+in seminal papers by \citet{Artzner1999} and \citet{Acerbi2002a} on
+risk and \citet{Rockafellar2006} on deviation, with the latter
 establishing the connection between the two and briefly described here.
 Consider the probability space $\{\Omega, \mathcal{A}, P\}$ where $P$ is the
 probability on the $\mathcal{A}$ measurable subsets of $\Omega$.
-\citeasnoun{Rockafellar2006} defined a set of axioms which functions in the
+\citet{Rockafellar2006} defined a set of axioms which functions in the
 linear space $\mathcal{L}^2$ (which include the mean and variance) should
 satisfy. Formally, the deviation measure functionals
 $\mathcal{D}:{\mathcal{L}^2}(\Omega) \to \left[ {0,\infty } \right]$ should
@@ -217,7 +229,7 @@ where (D1) is the translation invariance property under the special condition
 given  for constants (i.e. insensitivity to constant shifts), (D2) represents
 the positive homogeneity property, (D3) the subadditivity property , while
 (D4) is the lower bound implied by the domain of $\mathcal{D}$.
-\citeasnoun{Artzner1999} provides the equivalent 'coherent' risk measure
+\citet{Artzner1999} provides the equivalent 'coherent' risk measure
 functionals $\mathcal{R}:{\mathcal{L}^2}(\Omega) \to \left( {-\infty,\infty }
 \right]$ which should satisfy the following axioms:
 \begin{itemize}
@@ -232,7 +244,7 @@ More plainly, (R1) implies that adding a constant to a set of losses does not
 change the risk, (R2) that holdings and risk scale by the same linear factor,
 (R3) that portfolio risk cannot be more than the combined risks of the
 individual positions, and (R4) that larger losses equate to larger risks.
-\citeasnoun{Acerbi2002a} defined the family of spectral risk measures as
+\citet{Acerbi2002a} defined the family of spectral risk measures as
 those with weighted\footnote{With positive weights which are normalized to sum to 1.}
 quantiles, possessing the properties of coherent risk measures and additionally:
 \begin{itemize}
@@ -240,7 +252,7 @@ quantiles, possessing the properties of coherent risk measures and additionally:
 \end{itemize}
 which essentially implies that portfolios with equal cumulative distribution
 functions ($\mathcal{F}$) should have the same risk.
-\citeasnoun{Rockafellar2006} defined a one-to-one relationship between
+\citet{Rockafellar2006} defined a one-to-one relationship between
 deviation and risk measures\footnote{In the rest of this paper, I will refer
 to 'risk' to mean both risk and deviation measures.} which satisfy properties
 (R1),(R2),(R3) and are strictly expectation bounded so that
@@ -265,7 +277,7 @@ Variance and Minimax measures, while the other 2 are the threshold based
 measures of Lower Partial Moments (\emph{LPM}) and Conditional Value at Risk
 (\emph{CVaR}).
 \subsection{Mean Variance (EV)}
-\citeasnoun{Markowitz1952} ushered in the era of modern portfolio management
+\citet{Markowitz1952} ushered in the era of modern portfolio management
 with the introduction of the Mean-Variance model of risk-return. Variance is
 a valid measure of risk for ranking preferences if either the investor
 exhibits quadratic utility (in which case it does not matter whether the
@@ -300,31 +312,31 @@ to the strange case of investors desiring less to more after a certain point
 on the utility curve, whilst the multivariate normality assumption is not
 usually borne out by the data. The symmetric nature of variance, penalizing
 both up and down deviations at the same rate was criticized by quite early on
-by \citeasnoun{Hanoch1969}\footnote{The criticism was in fact also aimed at
+by \citet{Hanoch1969}\footnote{The criticism was in fact also aimed at
 any symmetric dispersion measure, not just variance.}, while its lack of
 consistency with stochastic dominance relations should have effectively
 buried it as a method for portfolio allocation. However, its tractability and
 ease of use has made it a very popular choice, particularly for the modelling
 of monthly returns, with numerous extensions to provide for robustness and
 uncertainty mainly in the derivation of the covariance matrix. For example
-\citeasnoun{James1956} provide for a shrinkage estimator, \citeasnoun{Black1992} a
-semi-Bayesian approach while \citeasnoun{Michaud1989} a general criticism of the
+\citet{James1956} provide for a shrinkage estimator, \citet{Black1992} a
+semi-Bayesian approach while \citet{Michaud1989} a general criticism of the
 approach with a patented alternative based on resampling methods. The Vector AR
 model in the package allows for a choice of covariance estimators to be chosen
 for the simulation of the random scenario matrix.
 \subsection{Mean Absolute Deviation (MAD)}
 In the early days of computer programming, large scale quadratic problems
 were computationally more demanding to solve than linear problems. In light
-of this, \citeasnoun{Konno1991} introduced a piece-wise linear formulation of
+of this, \citet{Konno1991} introduced a piece-wise linear formulation of
 the absolute deviation function as an alternative to the
-\citeasnoun{Markowitz1952} method. The standard NLP objective function may be
+\citet{Markowitz1952} method. The standard NLP objective function may be
 formulated as:
 \begin{equation}\label{madnlp}
 \begin{gathered}
 \frac{1}{n}\sum\limits_{i=1}^n {\left| {\sum\limits_{j=1}^m {{w_j}\left( {{r_{i,j}} - {\mu _j}} \right)} } \right|}
 \end{gathered}
 \end{equation}
-which \citeasnoun{Konno1991} reduced to the following piece-wise linear problem:
+which \citet{Konno1991} reduced to the following piece-wise linear problem:
 \begin{equation}\label{madlp}
 \begin{gathered}
   \mathop {\min }\limits_{w,d} \frac{1}{n}\sum\limits_{i=1}^n {{d_i}}  \hfill \\
@@ -340,7 +352,7 @@ where $d$ represent the absolute deviations of the portfolio from its
 forecast mean, forming a vector of variables of size $n$ (length of the
 scenario) to be optimized. However, the constraints imposed to create the
 piece-wise linear function for the absolute deviation requires two $n\times
-n$ diagonal matrices stacked together\footnote{\citeasnoun{Feinstein1993}
+n$ diagonal matrices stacked together\footnote{\citet{Feinstein1993}
 provide for a reformulated representation with only one n diagonal matrix.}
 which may lead to computer memory problems for very large scenarios. This is
 in direct contrast to the EV model which only depends on the number of
@@ -351,12 +363,12 @@ represent the average investor. However, by not giving undue weight to the
 extreme observations, the MAD model may be more robust to possible
 misspecification in the dynamics from which the scenario was generated.
 Extensions to the model have included the addition of skewness in
-\citeasnoun{Konno1993}, and semi-absolute deviation first suggested by
-\citeasnoun{Speranza1993} who showed that the mean semi-deviation is a half
+\citet{Konno1993}, and semi-absolute deviation first suggested by
+\citet{Speranza1993} who showed that the mean semi-deviation is a half
 of the mean absolute deviation from the mean. Similar to the EV model, the
 MAD model lacks consistency with stochastic dominance relations.
 \subsection{Minimizing Regret (MiniMax)}
-The MiniMax model of \citeasnoun{Young1998a}, aims to minimize the maximum loss,
+The MiniMax model of \citet{Young1998a}, aims to minimize the maximum loss,
 $\max \left( {\sum\limits_{j=1}^m {- {r_{i,j}}{w_j}} ,\forall i=1,\dots,n} \right)$
 and as such is a very conservative criterion. It has a very simple LP formulation:
 \begin{equation}\label{eq:minimax}
@@ -372,7 +384,7 @@ and as such is a very conservative criterion. It has a very simple LP formulatio
 where $M_p$ is the objective minimization value representing the maximum loss
 of the portfolio and guaranteed to be bounded from above by the maximum
 portfolio loss as a result of the first constraint. While
-\citeasnoun{Young1998a} only considered the problem in light of historical
+\citet{Young1998a} only considered the problem in light of historical
 scenarios, there is no reason why $r$ in the formulation may not represent a
 future simulated forecast scenario. Contrary to the MAD model, it only
 requires 1 additional variable and $n\times 1$ additional constraint vector
@@ -385,10 +397,10 @@ Value at Risk spectral risk measure described in the Section \ref{cvar}.
 \subsection{Lower Partial Moments (LPM)}\label{LPM}
 The concept of penalizing deviations below a certain threshold at a different
 rate is at the heart of modern risk management and was already hinted at by
-\citeasnoun{Markowitz1952} in a reference to semi-standard deviation. This
+\citet{Markowitz1952} in a reference to semi-standard deviation. This
 was later formalized into a very general class of measures by
-\citeasnoun{Stone1973}, and the Lower Partial Moment (\emph{LPM}) framework
-of \citeasnoun{Fishburn1977} which, in the continuous case, may be defined
+\citet{Stone1973}, and the Lower Partial Moment (\emph{LPM}) framework
+of \citet{Fishburn1977} which, in the continuous case, may be defined
 as:
 \begin{equation}
 LP{M_{a ,\tau }}\left( f \right)=\int\limits_{ - \infty }^\tau  {{{\left( {\tau  - x} \right)}^a }f\left( x \right)dx}
@@ -401,7 +413,7 @@ LP{M_{a ,\tau }}\left( x \right)=E\left[ {\max {{\left( {\tau  - x,0} \right)}^a
 \end{equation}
 Upper Partial Moments (\emph{UPM}) are defined similarly. Usually, in the
 portfolio optimization context, the measure is standardized by raising it to
-the power of $\frac{1}{a}$. \citeasnoun{Fishburn1977} derived a utility
+the power of $\frac{1}{a}$. \citet{Fishburn1977} derived a utility
 representation for this measure consistent with the von Neumann-Morgenstern
 axioms, and represented as:
 \begin{equation}\label{eq:lpmutility}
@@ -410,7 +422,7 @@ U\left( x \right)=\begin{array}{*{20}{c}}
    x & {x \geq \tau }  \\
 \end{array}
 \end{equation}
-where $k$ is a positive constant. \citeasnoun{Harlow1989} describe an asset
+where $k$ is a positive constant. \citet{Harlow1989} describe an asset
 pricing model in the mean-lower partial moment framework (MLPM) and show that
 an MLPM framework is consistent with a very general set of utility functions.
 For example, the hyperbolic absolute risk aversion (\emph{HARA}) class of
@@ -418,8 +430,8 @@ utility functions  is consistent with $1^{st}$-degree LPM, whereas any risk
 averse utility function displaying skewness preference with positive first
 and third derivatives and negative second derivatives are consistent with
 $2^{nd}$-degree LPM. In addition to this strong link with expected utility
-theory, \citeasnoun{Bawa1977}, \citeasnoun{Bawa1978} and
-\citeasnoun{Fishburn1977} showed that stochastic dominance is equivalent to
+theory, \citet{Bawa1977}, \citet{Bawa1978} and
+\citet{Fishburn1977} showed that stochastic dominance is equivalent to
 all degrees
 of n-degree LPM.\\
 The portfolio optimization problem can be posed as follows:
@@ -433,7 +445,7 @@ The portfolio optimization problem can be posed as follows:
 \end{gathered}
 \end{equation}
 Special cases are $a=0$ representing the shortfall probability or
-Safety-First  model of \citeasnoun{Roy1952}, $a=1$ the below target shortfall
+Safety-First  model of \citet{Roy1952}, $a=1$ the below target shortfall
 and $a=2$ the shortfall variance which is equivalent to the central
 semi-variance when $\tau=E\left(x\right)$. When $a=1$, an LP formulation
 exists and is given by:
@@ -451,14 +463,14 @@ exists and is given by:
 The \textbf{parma} package implements the general LPM as NLP, but also
 includes  the  special case when $a=1$ as an LP formulation. For positive
 values of $a$ other than 1, the discontinuous max function appears to pose
-some problems in the optimization strategy. \citeasnoun{Nawrocki1989} devised
+some problems in the optimization strategy. \citet{Nawrocki1989} devised
 a heuristic measure which approximates the function using only quadratic
 programming methods. Instead, I replace the max function with a smoothed
 approximation for which derivatives exist and discussed further in Section
 \ref{sec:4}. With regards to the choice of threshold variable $\tau$, the
 choice may be motivated by the investor's minimum acceptable return, some
-benchmark rate\footnote{However, \citename{Brogan2005}
-(\citeyear*{Brogan2005}, \citeyear*{Brogan2008}) have shown that for the
+benchmark rate\footnote{However, \citeauthor{Brogan2005}
+(\citeyear{Brogan2005}, \citeyear{Brogan2008}) have shown that for the
 linear separation property to hold, which assumes convexity of the mean-LPM
 space, the threshold must either be equal to the risk free rate or the mean
 of the portfolio.} or any other reasonable choice. A simple choice which
@@ -482,7 +494,7 @@ i.e. when not raised to the power of $\frac{1}{a}$, the measure is multiplied
 not
 by $\frac{1}{b}$ but $\frac{1}{b^a}$ instead.}\\
 Because the linear reward function may be too restrictive in practise,
-\citeasnoun{Holthausen1981} extended the LPM model to include a non-linear
+\citet{Holthausen1981} extended the LPM model to include a non-linear
 reward measure so that for $x\geq\tau$ in \eqref{eq:lpmutility}
 $U\left(x\right)=x + {\left( {x - \tau } \right)^{{a_u}}}$, where $a_u$ is
 the power exponent for the upper partial moment, thus effectively capturing a
@@ -498,7 +510,7 @@ However, without making use of advanced state of the art commercial global
 optimization solvers, it is quite hard to gauge the optimality of this solution
 and the user should not expect too much as things currently stand.
 \subsection{Conditional Value at Risk (CVaR)}\label{cvar}
-Since the report by the Group of Thirty \citeasnoun{G301993}, the use of
+Since the report by the Group of Thirty \citet{G301993}, the use of
 Value  at Risk (VaR) is almost universal among banks, trading desks and other
 financial entities as a key measure for measuring and managing risk. Despite
 its popularity, it has come under growing pressure as a non coherent (it
@@ -509,9 +521,9 @@ conditional on the VaR being violated is called Conditional Value at Risk
 (CVaR)\footnote{Also called Expected Tail Loss with distinctions in the names
 sometimes denoting differences for the continuous and sample cases, with the
 latter requiring a specialized representation in order to be deemed convex
-according to \citeasnoun{Rockafellar2000}.} which is a coherent and convex
+according to \citet{Rockafellar2000}.} which is a coherent and convex
 risk measure belonging to the class of spectral risk measures of
-\citeasnoun{Acerbi2002}. Formally, a spectral risk measure $M_\psi$ is a
+\citet{Acerbi2002}. Formally, a spectral risk measure $M_\psi$ is a
 weighted average of the the loss distribution quantile $q$ evaluated at $p$,
 such that:
 \begin{equation}
@@ -523,15 +535,15 @@ non-negative, normalized to sum to 1, and increasing or constant in $p$ (such
 that higher losses have equal or higher weights to lower loses). VaR is
 clearly a spectral risk measure with weighting the dirac delta function which
 is degenerate, while CVaR is based on a step function (constant weight for
-losses greater than VaR). \citeasnoun{Cotter2006} investigated alternative
+losses greater than VaR). \citet{Cotter2006} investigated alternative
 weighting functions to account for truly risk averse behavior by considering
 strictly increasing weights functions in an application for establishing
 futures clearinghouse margin requirements. While they found that such
-weighting schemes were superior to the standard CVaR, \citeasnoun{Dowd2008}
+weighting schemes were superior to the standard CVaR, \citet{Dowd2008}
 also found some problems in their implementation both in the choice of
 functions as well as the mixing properties of these measures with respect to
 nonlinear weighting functions. In a different direction
-\citeasnoun{Rockafellar2006} considered the so called mixed-CVaR problem
+\citet{Rockafellar2006} considered the so called mixed-CVaR problem
 whereby it is possible to mix together CVaR at different coverage rates using
 a weighting function, and established the relationship between this and the
 spectral risk representation. In terms of the general optimization problem,
@@ -542,7 +554,7 @@ function given by:
 \end{equation}
 where $v$ is the $a$-quantile of the distribution. For a discrete scenario,
 this can be represented using auxiliary variables as the following LP problem
-(due to \citeasnoun{Rockafellar2000}):
+(due to \citet{Rockafellar2000}):
 \begin{equation}
 \begin{gathered}
   \mathop {\min }\limits_{w,d,v} \frac{1}{{na}}\sum\limits_{i=1}^n {{d_i} + v}  \hfill \\
@@ -559,9 +571,9 @@ deviations  below the VaR. The formulation presented here is in such a way
 as to represent the asset returns scenario matrix rather than the more typical
 loss representation in the literature.\\
 Direct extensions have followed in the same vein as the LPM measures with
-\citeasnoun{Biglova2004} proposing the Rachev Ratio as the upper to lower
+\citet{Biglova2004} proposing the Rachev Ratio as the upper to lower
 CVaR for which they provide a mixed integer representation in
-\citeasnoun{Stoyanov2007} (modified by \citeasnoun{Konno2011} for cases when
+\citet{Stoyanov2007} (modified by \citet{Konno2011} for cases when
 the returns are completely distributed on the positive side), and also
 proposed in the same paper the Generalized Rachev Ratio which is the Rachev
 Ratio but with the numerator and denominator raised to different powers
@@ -576,11 +588,11 @@ the scenario which determines the number of binary variables required.}
 \subsection{Conditional Drawdown at Risk (CDaR)}
 Drawdown is an interesting concept in the literature on optimization since
 this is a strongly path dependent measure. With the exception of Brownian
-motion with zero drift discussed in \citeasnoun{Douady1999}, there is no
+motion with zero drift discussed in \citet{Douady1999}, there is no
 closed form solution for the distribution of this measure. While some
 interesting solutions have been proposed, see for instance
-\citeasnoun{Magdon-Ismail2004}, the measure considered here and its
-optimization is based on \citeasnoun{Chekhlov2005}. The problem may be posed
+\citet{Magdon-Ismail2004}, the measure considered here and its
+optimization is based on \citet{Chekhlov2005}. The problem may be posed
 as the following LP:
 \begin{equation}
 \begin{gathered}
@@ -630,7 +642,7 @@ deviation measures and as such are not location invariant, but do have the locat
 with the exception of $CDaR$ which is path dependent. While the location and scaling of the $LPM$ measure was
 discussed in Section \ref{LPM}, it is interesting to note that subadditivity is only present when
 the threshold is equal to the portfolio mean\footnote{Equivalent to setting the threshold to 999 in
-the \emph{parmaspec} options }, something also discussed in \citeasnoun{Brogan2005}.
+the \emph{parmaspec} options }, something also discussed in \citet{Brogan2005}.
 \section{General Problem Formulation}\label{sec:3}
 As was summarized in Table \ref{table:solvers}, the \textbf{parma} package
 supports a variety of solvers, depending on the type of objective and
@@ -706,7 +718,7 @@ for details).
 
 \subsection{QP}
 The quadratic formulation, for use in the EV type problem of
-\citeasnoun{Markowitz1952} may be represented as:
+\citet{Markowitz1952} may be represented as:
 \begin{equation}\label{qp}
 \begin{gathered}
   \mathop {\min }\limits_{\mathbf{w}} {\mathbf{w'Sw}} \hfill \\
@@ -717,15 +729,75 @@ The quadratic formulation, for use in the EV type problem of
 \end{gathered}
 \end{equation}
 where $\mathbf{S}$ is some positive definite covariance matrix, and
-constraints as in the LP case in Equation \eqref{milp}. Inclusion of
-quadratic constraints (making use of second order cone programming) and mixed
-integer QP may be included in future versions of the package. Benchmark relative
+constraints as in the LP case in Equation \eqref{milp}. Benchmark relative
 optimization is fully supported, and in this case a vector of the covariance
 between the benchmark and the portfolio must be passed (via the \emph{benchmarkS}
 option in the \emph{parmaspec} function), where the first value is the variance of
-the benchmark. The rest of the values should be passed as explained in the MILP
-section. The interested reader should consult for example \citeasnoun{Stoyanov2007}
-pp.412--414 for details of benchmark relative optimization in a QP setup.
+the benchmark, so that the resulting joint covariance matrix constructed by the
+routine is:
+\begin{equation}
+{\Sigma _{b,r}} = \left( {\begin{array}{*{20}{c}}
+  {\sigma _b^2}&{{\sigma _{\left\{ {b,r} \right\}}}} \\ 
+  {{\sigma _{\left\{ {b,r} \right\}}}}&{{\Sigma _r}} 
+\end{array}} \right)
+\end{equation}
+and the portfolio relative risk is then given by ${\left( { - 1,w} \right)^\prime }{\Sigma _{b,r}}\left( { - 1,w} \right)$.
+The rest of the values should be passed as explained in the MILP section. The interested reader should 
+consult for example \citet{Stoyanov2007} pp.412--414 for details of benchmark relative optimization in a QP setup.
+\subsubsection{Optimal Portfolio}\label{qpopt}
+The optimal portfolios admit one of 2 equivalent representations, depending on whether we are maximizing reward to risk:
+\begin{equation}
+\begin{gathered}
+  \mathop {{\text{max}}}\limits_{{\mathbf{x}},t} {\text{ }}{\mathbf{x'}}{f_r} \hfill \\
+  {\text{s.t.  }}{\left( { - t,{\mathbf{x}}} \right)^\prime }{\Sigma _{b,r}}\left( { - t,{\mathbf{x}}} \right) \leqslant 1 \hfill \\
+  {\mathbf{x'1}} = t \hfill \\
+  t{\mathbf{L}} \leqslant {\mathbf{Ax}} \leqslant t{\mathbf{U}} \hfill \\
+  t \geqslant 0 \hfill \\ 
+\end{gathered}
+\end{equation}
+or minimizing risk to reward:
+\begin{equation}
+\begin{gathered}
+  \mathop {{\text{min}}}\limits_{{\mathbf{x}},t} {\text{ }}{\left( { - t,{\mathbf{x}}} \right)^\prime }{\Sigma _{b,r}}\left( { - t,{\mathbf{x}}} \right) \hfill \\
+  {\text{s.t.  }}{\mathbf{x'}}{f_r} = 1 \hfill \\
+  {\mathbf{x'1}} = t \hfill \\
+  t{\mathbf{L}} \leqslant {\mathbf{Ax}} \leqslant t{\mathbf{U}} \hfill \\
+  t \geqslant 0 \hfill \\ 
+\end{gathered}
+\end{equation}
+where it is understood that $f_r$ is the returns forecast, and in the case of benchmark relative optimization, the returns forecast in excess of the benchmark forecast.
+\subsection{SOCP}
+A Second Order Cone Programming (\emph{SOCP}) problem has the following form:
+\begin{equation}
+\begin{array}{l}
+{\text{minimize    }}c'x\\
+{\text{subject to   }}\left\| {{A_i}x + {b_i}} \right\| \le {{c'}_i}x + {d_i},{\text{   i = 1,\dots,L}}\\
+\end{array}
+\end{equation}
+where $\left\| {...} \right\|$ denotes the euclidean norm so that $\left\| x \right\| = \sqrt {x'x}$. Special cases include linear, quadratic and quadratically constrained quadratic problems, as well as a number of nonlinear and possible non-differentiable problems. While SOCP is a special case of Semi-Definite programming (\emph{SDP}) it is always more efficient to solve these problems using special purpose solvers rather than more general ones.
+ 
+A special set of constraints based on p-norms can be represented using SOCP. Consider the following
+p-norm inequality constraint:
+\begin{equation}
+{\left\| x \right\|_p} = {\left( {\sum\limits_{i = 1}^n {{{\left| {{x_i}} \right|}^p}} } \right)^{1/p}} \le t
+\end{equation}
+which involves the p-norm of a vector x $\in \Re^n$. We can re-write $p$ as $l/m$, where $l\ge m$, so that:
+\begin{equation}
+{\left\| x \right\|_p} = {\left( {\sum\limits_{i = 1}^n {{{\left| {{x_i}} \right|}^{l/m}}} } \right)^{m/l}} \le t
+\end{equation}
+and is equivalent to the following set of constraints:
+\begin{equation}
+\begin{array}{l}
+ - {x_i} + {t^{\frac{{l - m}}{l}}}s_i^{\frac{m}{l}} \ge 0\\
+{x_i} + {t^{\frac{{l - m}}{l}}}s_i^{\frac{m}{l}} \ge 0\\
+{s_i} \ge 0,{\rm{  }}i = 1,...,n\\
+\left( {\sum\limits_{i = 1}^n {{s_i}} } \right) \le t,{\rm{  }}t \ge 0
+\end{array}
+\end{equation}
+where $s$ is an auxilliary vector of variables of same size as the original decision vector x. Obviously, the inequality can be turned into an equality using one extra constraint. However, care should be taken to allow for some slack between the upper and lower bounds of the 2 inequality constraints used to represent one equality else numerical difficulties may be encountered by the solver. It thus follows from the above type of exposition that it is quite easy to include a leverage constraint in a long/short portfolio optimization setting by setting $l=m=1$ which represents the manhattan norm.
+
+In the parma package, problems which include the covariance matrix instead of a scenario may be solved either by the QP solver else the SOCP solver. In the latter case, there is a greater deal of flexibility since QCQP problems are easily solved (see the option for a list of matrices \emph{Q} in the documentation on \textbf{parmaspec}), as is the case of long/short optimization with a leverage (gross sum) constraint and the optimal risk to reward problem using the fractional approach of Section \ref{qpopt}
+
 
 \subsection{GNLP}
 The GNLP problem in the \textbf{parma} package is represented by use of
@@ -761,10 +833,10 @@ returns, $\mathbf{1}$ an $m\times 1$  vector ones and $\mathbf{A}$ a $q\times
 m$ matrix of linear constraints with lower and upper bounds given by
 $\mathbf{L}$ and $\mathbf{U}$ respectively. The key developments in the
 theory of fractional programming were provided in the linear case by
-\citeasnoun{Charnes1962}, while for nonlinear cases the main contributions
-can be traced to \citeasnoun{Dinkelbach1967} and
-\citename{Schaible1976a}(\citeyear*{Schaible1976a},
-\citeyear*{Schaible1976b}). More recently, \citeasnoun{Stoyanov2007} provided
+\citet{Charnes1962}, while for nonlinear cases the main contributions
+can be traced to \citet{Dinkelbach1967} and
+\citeauthor{Schaible1976a}(\citeyear{Schaible1976a},
+\citeyear{Schaible1976b}). More recently, \citet{Stoyanov2007} provided
 a more focused review of fractional programming with reference to financial
 portfolio optimization. Under the assumption that both numerator and
 denominator are positive homogeneous, the problem in \eqref{eq:fractional1}
@@ -833,7 +905,7 @@ leverage constraint (the absolute sum of positions)\footnote{A common mistake
 is to keep the full investment constraint instead of replacing it with the
 leverage constraint, which makes no sense even when controlling for
 individual position limits.}, without resorting to such methods as described
-in \citeasnoun{Jacobs2006} which double the size of the problem and require
+in \citet{Jacobs2006} which double the size of the problem and require
 certain very specific assumptions about the 'trimability' of the portfolio.
 Finally, for the case of the Minimax problem, it is possible to make use of
 the generalized mean function ${M_p}\left( {{x_1},\dots,{x_n}} \right)={\left(
@@ -853,7 +925,28 @@ problems versus the exact LP formulation for a typical minimization problem, whi
 Table \ref{table:lpnlp2} shows the relative accuracy in a fractional problem setting.
 \input{lpnlp1.tex}
 \input{lpnlp2.tex}
-\section{FAQ's and Misc Notes}\label{sec:6}
+\section{Custom Constraints}\label{sec:6}
+Since versions 1.5-0 the package has exported a number of custom constraint functions and their analytic derivatives (jacobians) to be used with NLP formulations. At present,
+there are a set of functions for defining turnover constraints and a maximum portfolio variance given a user supplied covariance matrix. These functions can be passed to \emph{parmaspec} quite easily and details are provided in the documentation. This section will instead provide for a brief description of the type of turnover constraints which are included.
+\subsection{Simple Turnover}
+The simple turnover ($T$) constraint, given the set of optimal decision weights ($\mathbf{w}$) versus the existing set of weights ($\mathbf{w}^{old}$) can be represented as:
+\begin{equation}
+\sum\limits_{i = 1}^m {\left| {{w_i} - w_i^{old}} \right| \leqslant T,T \in {\mathbb{R}^ + }}
+\end{equation}
+Because of the absolute value function, this problem is most easily represented in an NLP setup with the use of the smooth absolute value function presented in Section \ref{sec:5}. For LP problems, this may also be formulated by use of auxiliary variables and this may be included in the package at a future time.
+\subsection{Buy and Sell Turnover}
+A more flexible turnover constraint limits the buy ($T^+$) and sell ($T^-$) turnover separately, and can be represented as:
+\begin{equation}
+\begin{gathered}
+  \sum\limits_{i = 1}^m {\max \left( {0,{w_i} - w_i^{old}} \right) \leqslant {T^ + },{T^ + } \in {\mathbb{R}^ + }}  \hfill \\
+  \sum\limits_{i = 1}^m {\max \left( {0,w_i^{old} - {w_i}} \right) \leqslant {T^ - },{T^ - } \in {\mathbb{R}^ + }}  \hfill \\
+\end{gathered}
+\end{equation}
+where again the smooth approximation to the maximum value function presented in Section \ref{sec:5} is used. \textbf{When using this
+constraint in a fractional programming setup, care should be taken that the combination of bounds, turnover limits and the forecast return
+vector do not result in a negative expected return in which case the problem is not solvable}.
+
+\section{FAQ's and Misc Notes}\label{sec:7}
 The following additional notes may be of interest:
 \begin{itemize}
 \item QCQP (Quadratically Constrained Quadratic Problems) are not yet
