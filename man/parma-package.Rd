@@ -10,8 +10,8 @@ moment based optimization of portfolios.
 \tabular{ll}{
 Package: \tab parma\cr
 Type: \tab Package\cr
-Version: \tab 1.5-1\cr
-Date: \tab 2014-02-23\cr
+Version: \tab 1.5-2\cr
+Date: \tab 2014-07-09\cr
 License: \tab GPL\cr
 LazyLoad: \tab yes\cr
 Depends: \tab methods\cr
