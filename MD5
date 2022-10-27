@@ -1,5 +1,5 @@
-0d5fd86c7750c2b1694a7178afddc6a9 *Changelog
-dddba79dab6d379aa7a2efafe2ed072b *DESCRIPTION
+3f840f44e2696792a1ac6ae307388608 *Changelog
+6a4b0857ab85a9fa1e54db78b06e00b9 *DESCRIPTION
 418600e52538052de2cce470981720d9 *NAMESPACE
 9366105ae85d137e73d11d871a18b766 *R/Socp.R
 aeaa32d92e2dfed35c70c560302ac8bb *R/p-GNLP.R
@@ -23,7 +23,7 @@ b09fa0bd790f882da7d49cd5cd785f6a *inst/CITATION
 ee86bce61e0394171965d1f6c2305458 *inst/COPYRIGHTS
 1b35e7a2a96f75d45dcc544c12b19deb *inst/doc/Portfolio_Optimization_in_parma.pdf
 ccc52ce439e258ebb81b32317d2f3cf8 *inst/doc/Portfolio_Optimization_in_parma.pdf.asis
-b6075694f470bdf8416edd1e2426aa80 *inst/parma.tests/parma.tests.R
+17f80ae1f9658ef393e61af2734115f3 *inst/parma.tests/parma.tests.R
 cff644d55b528644043d70bc4d52c996 *man/Socp.Rd
 e2c52f06de1f2d13bbe9c3cbc343f62e *man/SocpControl.Rd
 2c13faaae59943a316d3b1ae8b5658c4 *man/SocpPhase1.Rd
@@ -43,5 +43,5 @@ b4fabcb4f84eb0d2ba3bb222b22c46dd *man/parmafrontier-methods.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars.win
 96483f787ebdd5cf602eb0be30a63ef5 *src/init.c
 cf8f582339547c0c575473da4f80364e *src/socp.c
-f2067b8488568061ed042c11cb63478e *src/socp.h
+48cd78a99bc80e81981a8b61969b815c *src/socp.h
 ccc52ce439e258ebb81b32317d2f3cf8 *vignettes/Portfolio_Optimization_in_parma.pdf.asis

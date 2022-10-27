@@ -1,8 +1,8 @@
 Package: parma
 Type: Package
 Title: Portfolio Allocation and Risk Management Applications
-Version: 1.6
-Date: 2022-06-13
+Version: 1.7
+Date: 2022-10-27
 Authors@R: c(person("Alexios", "Galanos", email =
         "alexios@4dscape.com", role = c("aut", "cre")),
 	person("Bernhard", "Pfaff", email =
@@ -28,7 +28,7 @@ License: GPL-3
 URL: https://github.com/alexiosg/parma
 VignetteBuilder: R.rsp
 NeedsCompilation: yes
-Packaged: 2022-06-13 22:42:44 UTC; alexios
+Packaged: 2022-10-27 20:19:08 UTC; alexios
 Author: Alexios Galanos [aut, cre],
   Bernhard Pfaff [ctb],
   Miguel Sousa Lobo [ctb] (SOCP),
@@ -36,4 +36,4 @@ Author: Alexios Galanos [aut, cre],
   Stephen Boyd [ctb] (SOCP),
   Herve Lebret [ctb] (SOCP)
 Repository: CRAN
-Date/Publication: 2022-06-13 23:40:02 UTC
+Date/Publication: 2022-10-27 23:22:37 UTC
